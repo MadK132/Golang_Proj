@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-mode">
+<header class="header py-3">
+    <div class="container d-flex justify-content-between">
+        <nav class="nav">
+            <div class="nav-logo" style="padding-right: 20%">
+                <p>STUDY</p>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="courses.html" class="link">Courses</a></li>
+                    <li><a href="contact.html" class="link">Contact us</a></li>
+                </ul>
+            </div>
+            <div class="nav-menu" id="navMenuu">
+                <div class="nav-button">
+                    <ul>
+                        <li><a href="Login.html" id="Login" class="link">Log In / Sign Up</a></li>
+                        <li><span id="userGreeting" style="display: none;"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3" onclick="toggleMode()">🌙</button>
+        <button class="btn" id="logoutBtn" style="display: flex;" onclick="logout()">Log Out</button>
+    </div>
+</header>
+
+<main class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2 class="mb-4">Find your voice in Russian and Kazakh. Faster.</h2>
+            <h1 class="font-weight-bold">The world's #1 online</h1>
+            <h1 class="font-weight-bold">Kazakh/Russian courses</h1>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="bbfb8afb-ec09-4757-98f6-19be3b9038ea.jfif" alt="English Course" class="img-fluid" style="max-width: 90%;">
+        </div>
+    </div>
+
+    <div class="row text-center py-5 mt-5">
+        <div class="col-md-3">
+            <h3>200k</h3>
+            <h4>Learners taught</h4>
+        </div>
+        <div class="col-md-3">
+            <h3>Hundreds</h3>
+            <h4>Classes per year</h4>
+        </div>
+        <div class="col-md-3">
+            <h3>10 years</h3>
+            <h4>Of teaching experience</h4>
+        </div>
+        <div class="col-md-3">
+            <h3>★★★★</h3>
+            <h4>Teacher rating</h4>
+        </div>
+    </div>
+</main>
+
+<footer class="footer text-center py-3" style="position: relative;">
+    <p>SE-2304. All Rights Reserved.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function toggleMode() {
+        const body = document.body;
+        const modeToggleButton = document.getElementById("modeToggle");
+        const isLightMode = body.classList.contains("light-mode");
+
+        if (isLightMode) {
+            body.classList.remove("light-mode");
+            body.classList.add("dark-mode");
+            modeToggleButton.textContent = "🌞";
+            localStorage.setItem("theme", "dark-mode");
+        } else {
+            body.classList.remove("dark-mode");
+            body.classList.add("light-mode");
+            modeToggleButton.textContent = "🌙";
+            localStorage.setItem("theme", "light-mode");
+        }
+    }
+
+    window.addEventListener("load", function() {
+        const savedTheme = localStorage.getItem("theme");
+        const body = document.body;
+        const modeToggleButton = document.getElementById("modeToggle");
+
+        if (savedTheme) {
+            body.classList.remove("light-mode", "dark-mode");
+            body.classList.add(savedTheme);
+
+            if (savedTheme === "dark-mode") {
+                modeToggleButton.textContent = "🌞";
+            } else {
+                modeToggleButton.textContent = "🌙";
+            }
+        } else {
+            body.classList.add("light-mode");
+            modeToggleButton.textContent = "🌙";
+        }
+    });
+
+    window.onload = function() {
+        const currentUser = localStorage.getItem("currentUser");
+
+        if (currentUser) {
+            document.getElementById("Login").style.display = "none";
+            document.getElementById("userGreeting").style.display = "inline";
+            document.getElementById("userGreeting").textContent = `${currentUser}`;
+            document.getElementById("logoutBtn").style.display = "inline";
+        } else {
+            document.getElementById("Login").style.display = "inline";
+            document.getElementById("userGreeting").style.display = "none";
+            document.getElementById("logoutBtn").style.display = "none";
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("currentUser");
+        document.getElementById("Login").style.display = "inline";
+        document.getElementById("userGreeting").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "none";
+    }
+</script>
+
+</body>
+</html>

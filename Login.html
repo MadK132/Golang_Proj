@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Login System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="background-color: #121212;">
+<header class="header py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+        <nav class="nav">
+            <div class="nav-logo" style="padding-right: 20%">
+                <p>STUDY</p>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="index.html" class="link active">Home</a></li>
+                    <li><a href="courses.html" class="link">Courses</a></li>
+                    <li><a href="contact.html" class="link">Contact us</a></li>
+                </ul>
+            </div>
+            <div style="padding-left: 13%" class="nav-button">
+                <button class="btn white-btn" id="loginBtn" onclick="login()">Sign In</button>
+                <button class="btn" id="registerBtn" onclick="register()">Sign Up</button>
+            </div>
+            <div class="nav-menu-btn">
+                <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="form-box" style="justify-content: center; align-items: center; min-height: 70vh;">
+
+    <div class="login-container" id="login">
+        <div class="top">
+            <span>Don't have an account? <a href="#" onclick="register()">Sign Up</a></span>
+            <header style="color: #fff;font-size: 50px; text-align: center; padding: 10px 0 30px 0;">Login</header>
+        </div>
+        <div class="input-box">
+            <input type="text" id="loginUsername" class="input-field" placeholder="Username or Email">
+            <i class="bx bx-user"></i>
+        </div>
+        <div class="input-box">
+            <input type="password" id="loginPassword" class="input-field" placeholder="Password">
+            <i class="bx bx-lock-alt"></i>
+        </div>
+        <div class="input-box">
+            <input type="submit" class="submit" value="Sign In" onclick="showLogin()">
+        </div>
+        <div class="two-col">
+            <div class="one"></div>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="container my-5" style="display: none;">
+        <h2 class="text-center mb-4">Admin Panel - User Management</h2>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="register-container" id="register">
+        <div class="top">
+            <span>Have an account? <a href="#" onclick="login()">Login</a></span>
+            <header style="color: #fff;font-size: 50px; text-align: center; padding: 10px 0 30px 0;">Sign Up</header>
+        </div>
+        <div class="two-forms">
+            <div class="input-box">
+                <input type="text" id="registerFirstname" class="input-field" placeholder="Firstname">
+                <i class="bx bx-user"></i>
+            </div>
+            <div class="input-box">
+                <input type="text" id="registerLastname" class="input-field" placeholder="Lastname">
+                <i class="bx bx-user"></i>
+            </div>
+        </div>
+        <div class="input-box">
+            <input type="text" id="registerEmail" class="input-field" placeholder="Email">
+            <i class="bx bx-envelope"></i>
+        </div>
+        <div class="input-box">
+            <input type="password" id="registerPassword" class="input-field" placeholder="Password">
+            <i class="bx bx-lock-alt"></i>
+        </div>
+        <div class="input-box">
+            <input type="submit" class="submit" value="Register" onclick="registerUser()">
+        </div>
+        <div class="two-col">
+            <div class="one"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function myMenuFunction() {
+        var i = document.getElementById("navMenu");
+        if (i.className === "nav-menu") {
+            i.className += " responsive";
+        } else {
+            i.className = "nav-menu";
+        }
+    }
+
+    var a = document.getElementById("loginBtn");
+    var b = document.getElementById("registerBtn");
+    var x = document.getElementById("login");
+    var y = document.getElementById("register");
+
+    function login() {
+        x.style.left = "4px";
+        y.style.right = "-520px";
+        a.className += " white-btn";
+        b.className = "btn";
+        x.style.opacity = 1;
+        y.style.opacity = 0;
+        x.style.zIndex = 0;
+        y.style.zIndex = 1;
+    }
+
+    function register() {
+        x.style.left = "-510px";
+        y.style.right = "5px";
+        a.className = "btn";
+        b.className += " white-btn";
+        x.style.opacity = 0;
+        y.style.opacity = 1;
+        x.style.zIndex = 0;
+        y.style.zIndex = 1;
+    }
+
+    function showAdminPanel() {
+        document.getElementById("adminPanel").style.display = "block";
+        document.getElementById("login").style.display = "none";
+        document.getElementById("register").style.display = "none";
+        loadUsers();
+    }
+
+    function deleteUser(btn) {
+        if (confirm("Are you sure you want to delete this user?")) {
+            let row = btn.closest("tr");
+            let username = row.cells[0].textContent;
+            row.parentNode.removeChild(row);
+            deleteUserFromStorage(username);
+        }
+    }
+
+    function showLogin() {
+        const username = document.getElementById("loginUsername").value;
+        const password = document.getElementById("loginPassword").value;
+
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+        if (username === "admin" && password === "admin123") {
+            showAdminPanel();
+            return;
+        }
+
+        const user = users.find(user => user.email === username && user.password === password);
+
+        if (user) {
+            alert("Successful login!");
+            localStorage.setItem("currentUser", user.username);
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 1500);
+        } else {
+            alert("Invalid data entry. Try again!");
+        }
+    }
+
+    function editUser(button) {
+        const row = button.closest("tr");
+
+        if (button.textContent === "Edit") {
+            button.textContent = "Save";
+            row.cells[0].setAttribute("contenteditable", "true");
+            row.cells[1].setAttribute("contenteditable", "true");
+            row.cells[2].setAttribute("contenteditable", "true");
+            row.style.backgroundColor = "#f9f9f9";
+        } else {
+            button.textContent = "Edit";
+            row.cells[0].removeAttribute("contenteditable");
+            row.cells[1].removeAttribute("contenteditable");
+            row.cells[2].removeAttribute("contenteditable");
+            row.style.backgroundColor = "";
+
+            const username = row.cells[0].textContent;
+            const email = row.cells[1].textContent;
+            const password = row.cells[2].textContent;
+
+            updateUserInStorage(username, email, password);
+        }
+    }
+
+    function updateUserInStorage(username, email, password) {
+        let users = JSON.parse(localStorage.getItem("users") || "[]");
+        users = users.map(user => {
+            if (user.username === username) {
+                return { ...user, email: email, password: password };
+            }
+            return user;
+        });
+        localStorage.setItem("users", JSON.stringify(users));
+    }
+
+    function registerUser() {
+        const firstname = document.getElementById("registerFirstname").value;
+        const lastname = document.getElementById("registerLastname").value;
+        const email = document.getElementById("registerEmail").value;
+        const password = document.getElementById("registerPassword").value;
+
+        if (firstname && lastname && email && password) {
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return;
+            }
+
+            const newUser = {
+                username: `${firstname} ${lastname}`,
+                email: email,
+                password: password
+            };
+
+            let users = JSON.parse(localStorage.getItem("users") || "[]");
+            users.push(newUser);
+            localStorage.setItem("users", JSON.stringify(users));
+            alert("Registration successful!");
+            login();
+        } else {
+            alert("Please fill in all fields.");
+        }
+    }
+
+    function loadUsers() {
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const userTableBody = document.getElementById("userTableBody");
+
+        users.forEach(user => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${user.username}</td>
+                <td>${user.email}</td>
+                <td>${user.password}</td>
+                <td>
+                    <button class="btn btn-info" onclick="editUser(this)">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteUser(this)">Delete</button>
+                </td>
+            `;
+
+            userTableBody.appendChild(row);
+        });
+    }
+
+    function deleteUserFromStorage(username) {
+        let users = JSON.parse(localStorage.getItem("users") || "[]");
+        users = users.filter(user => user.username !== username);
+        localStorage.setItem("users", JSON.stringify(users));
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

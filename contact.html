@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-mode">
+
+<header class="header py-3">
+    <div class="container d-flex justify-content-between">
+        <nav class="nav">
+            <div class="nav-logo" style="padding-right: 20%">
+                <p>STUDY</p>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="index.html" class="link">Home</a></li>
+                    <li><a href="courses.html" class="link">Courses</a></li>
+                </ul>
+            </div>
+            <div class="nav-menu" id="navMenuu">
+                <div class="nav-button">
+                    <ul>
+                        <li><a href="Login.html" id="Login" class="link">Log In / Sign Up</a></li>
+                        <li><span id="userGreeting" style="display: none;"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <button class="btn" id="logoutBtn" style="display: flex;" onclick="logout()">Log Out</button>
+    </div>
+</header>
+
+<button id="modeToggle" class="btn btn-light position-fixed top-0 right-0 m-3" onclick="toggleMode()">🌙</button>
+
+<main class="container my-5">
+    <h2 class="text-center mb-4">Contact Us</h2>
+    <form id="contactForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Phone number:</label>
+            <input type="tel" id="phone" name="phone" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" rows="4" class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg" style="margin-left:45%">Submit</button>
+    </form>
+</main>
+
+<footer class="footer text-center py-3" style="position: relative;">
+    <p>SE-2304. All Rights Reserved.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function toggleMode() {
+        const body = document.body;
+        const modeToggleButton = document.getElementById("modeToggle");
+        const isLightMode = body.classList.contains("light-mode");
+
+        if (isLightMode) {
+            body.classList.remove("light-mode");
+            body.classList.add("dark-mode");
+            modeToggleButton.textContent = "🌞";
+            localStorage.setItem("theme", "dark-mode");
+        } else {
+            body.classList.remove("dark-mode");
+            body.classList.add("light-mode");
+            modeToggleButton.textContent = "🌙";
+            localStorage.setItem("theme", "light-mode");
+        }
+    }
+
+    window.addEventListener("load", function() {
+        const savedTheme = localStorage.getItem("theme");
+        const body = document.body;
+        const modeToggleButton = document.getElementById("modeToggle");
+
+        if (savedTheme) {
+            body.classList.remove("light-mode", "dark-mode");
+            body.classList.add(savedTheme);
+
+            if (savedTheme === "dark-mode") {
+                modeToggleButton.textContent = "🌞";
+            } else {
+                modeToggleButton.textContent = "🌙";
+            }
+        } else {
+            body.classList.add("light-mode");
+            modeToggleButton.textContent = "🌙";
+        }
+    });
+
+    document.getElementById('contactForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        alert("Thank you for your message. We will get back to you soon.");
+    });
+
+    window.onload = function() {
+        const currentUser = localStorage.getItem("currentUser");
+
+        if (currentUser) {
+            document.getElementById("Login").style.display = "none";
+            document.getElementById("userGreeting").style.display = "inline";
+            document.getElementById("userGreeting").textContent = `${currentUser}`;
+            document.getElementById("logoutBtn").style.display = "inline";
+        } else {
+            document.getElementById("Login").style.display = "inline";
+            document.getElementById("userGreeting").style.display = "none";
+            document.getElementById("logoutBtn").style.display = "none";
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("currentUser");
+        document.getElementById("Login").style.display = "inline";
+        document.getElementById("userGreeting").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "none";
+    }
+</script>
+
+</body>
+</html>
