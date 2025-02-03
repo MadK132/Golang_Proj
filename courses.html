@@ -38,23 +38,20 @@
 <main class="container my-5">
   <h2 class="text-center mb-4">Our Courses</h2>
   <div class="row justify-content-center">
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 course-card" data-link="test.html" onclick="selectCourse(this)">
-        <img src="test.png" class="card-img-top mx-auto d-block" alt="IELTS Preparation" style="width: 100px; margin-top:3%">
-        <div class="card-body text-center">
-          <h5 class="card-title">Kazakh Language</h5>
-        </div>
+    <div class="col-md-4 mb-3 text-center">
+      <div class="card course-card p-0" data-link="test.html" onclick="selectCourse(this)" style="height: 180px; overflow: hidden;">
+        <img src="kz.jpg" class="card-img-top" alt="Kazakh Language" style="object-fit: cover; width: 100%; height: 100%;">
       </div>
+      <h5 class="mt-2">Kazakh Language</h5>
     </div>
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 course-card" data-link="general.html" onclick="selectCourse(this)">
-        <img src="dom.png" class="card-img-top mx-auto d-block" alt="General English" style="width: 130px; margin-top: 3%">
-        <div class="card-body text-center">
-          <h5 class="card-title">Russian Language</h5>
-        </div>
+    <div class="col-md-4 mb-3 text-center">
+      <div class="card course-card p-0" data-link="general.html" onclick="selectCourse(this)" style="height: 180px; overflow: hidden;">
+        <img src="rus.jpg" class="card-img-top" alt="Russian Language" style="object-fit: cover; width: 100%; height: 100%;">
       </div>
+      <h5 class="mt-2">Russian Language</h5>
     </div>
   </div>
+
   <div class="text-center">
     <button type="button" class="btn btn-success btn-lg" onclick="goToSelectedCourse()">Select</button>
   </div>
