@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us</title>
+    <title>About Us</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body class="light-mode">
-
 <header class="header py-3">
     <div class="container d-flex justify-content-between">
         <nav class="nav">
@@ -17,8 +16,8 @@
             </div>
             <div class="nav-menu" id="navMenu">
                 <ul>
-                    <li><a href="index.html" class="link">Home</a></li>
-                    <li><a href="courses.html" class="link">Courses</a></li>
+                    <li><a href="/courses.html" class="link">Courses</a></li>
+                    <li><a href="contact.html" class="link">Contact us</a></li>
                 </ul>
             </div>
             <div class="nav-menu" id="navMenuu">
@@ -30,37 +29,41 @@
                 </div>
             </div>
         </nav>
+        <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3" onclick="toggleMode()">🌙</button>
         <button class="btn" id="logoutBtn" style="display: flex;" onclick="logout()">Log Out</button>
     </div>
 </header>
 
-<button id="modeToggle" class="btn btn-light position-fixed top-0 right-0 m-3" onclick="toggleMode()">🌙</button>
-
-<main class="container my-5">
-    <h2 class="text-center mb-4">Contact Us</h2>
-    <form id="contactForm">
-        <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" class="form-control" required>
+<main class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2 class="mb-4">Find your voice in Russian and Kazakh. Faster.</h2>
+            <h1 class="font-weight-bold">The world's #1 online</h1>
+            <h1 class="font-weight-bold">Kazakh/Russian courses</h1>
         </div>
-
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" class="form-control" required>
+        <div class="col-md-6 text-center">
+            <img src="/static/bbfb8afb-ec09-4757-98f6-19be3b9038ea.jfif" alt="English Course" class="img-fluid" style="max-width: 90%;">
         </div>
+    </div>
 
-        <div class="form-group">
-            <label for="phone">Phone number:</label>
-            <input type="tel" id="phone" name="phone" class="form-control">
+    <div class="row text-center py-5 mt-5">
+        <div class="col-md-3">
+            <h3>200k</h3>
+            <h4>Learners taught</h4>
         </div>
-
-        <div class="form-group">
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" rows="4" class="form-control"></textarea>
+        <div class="col-md-3">
+            <h3>Hundreds</h3>
+            <h4>Classes per year</h4>
         </div>
-
-        <button type="submit" class="btn btn-success btn-lg" style="margin-left:45%">Submit</button>
-    </form>
+        <div class="col-md-3">
+            <h3>10 years</h3>
+            <h4>Of teaching experience</h4>
+        </div>
+        <div class="col-md-3">
+            <h3>★★★★</h3>
+            <h4>Teacher rating</h4>
+        </div>
+    </div>
 </main>
 
 <footer class="footer text-center py-3" style="position: relative;">
@@ -108,11 +111,6 @@
             body.classList.add("light-mode");
             modeToggleButton.textContent = "🌙";
         }
-    });
-
-    document.getElementById('contactForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        alert("Thank you for your message. We will get back to you soon.");
     });
 
     window.onload = function() {
