@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Lesson</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .video-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .lesson-content {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .progress-sidebar {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .completion-check {
+            color: #28a745;
+            display: none;
+            margin-left: 10px;
+        }
+
+        .nav-link.active {
+            background-color: #007bff;
+            color: white !important;
+        }
+
+        .nav-link.active .completion-check {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+
+        .nav-link.active:hover {
+            background-color: #0056b3;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            padding-top: 60px;
+        }
+
+        .sidebar-sticky {
+            height: calc(100vh - 60px);
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .nav.flex-column {
+            display: flex;
+            flex-direction: column !important;
+        }
+
+        .nav-item {
+            display: block;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-link:hover {
+            background-color: #e9ecef;
+        }
+
+        .nav-link.active {
+            background-color: #007bff;
+            color: white !important;
+        }
+
+        .completion-check {
+            color: #28a745;
+            display: none;
+            margin-left: 10px;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .sidebar-heading {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: #6c757d;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        /* Стили для мобильных устройств */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .sidebar-sticky {
+                height: auto;
+            }
+        }
+
+        /* Добавим анимацию появления галочки */
+        .completion-check {
+            transition: color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <header class="header py-3">
+        <!-- Same header as other pages -->
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="sidebar-sticky">
+                    <button onclick="window.location.href='/general'" class="btn btn-secondary mb-3 w-100">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                    <h6 class="sidebar-heading">Прогресс курса</h6>
+                    <div class="progress-container">
+                        <div class="progress">
+                            <div id="lessonProgress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p class="mt-2" id="progressText">0/10 видео завершено</p>
+                    </div>
+                    <h6 class="sidebar-heading">Видеоуроки</h6>
+                    <ul class="nav flex-column">
+                        <!-- Здесь будут отображаться видеоуроки -->
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="video-container">
+                    <h2>Lesson Title</h2>
+                    <div class="video-wrapper">
+                        <iframe src="https://www.youtube.com/embed/your-video-id" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="lesson-content">
+                        <h3>Lesson Description</h3>
+                        <p>Lesson content goes here...</p>
+                        <button id="markComplete" class="btn btn-success">Mark as Complete</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let progress = 0;
+        const currentUser = localStorage.getItem('currentUser');
+        
+        // Добавим массив с данными всех видеоуроков
+        const videoLessons = [
+            {
+                id: 'video1',
+                title: 'Введение в русский язык',
+                description: 'Базовые понятия русского языка, знакомство с алфавитом и произношением.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-1'
+            },
+            {
+                id: 'video2',
+                title: 'Алфавит и произношение',
+                description: 'Изучение русского алфавита и правил произношения. Практика чтения.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-2'
+            },
+            {
+                id: 'video3',
+                title: 'Основы грамматики',
+                description: 'Базовые правила грамматики русского языка. Части речи.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-3'
+            },
+            {
+                id: 'video4',
+                title: 'Существительные и род',
+                description: 'Изучение существительных и их родов в русском языке.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-4'
+            },
+            {
+                id: 'video5',
+                title: 'Прилагательные',
+                description: 'Прилагательные и их согласование с существительными.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-5'
+            },
+            {
+                id: 'video6',
+                title: 'Глаголы настоящего времени',
+                description: 'Изучение глаголов и их спряжения в настоящем времени.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-6'
+            },
+            {
+                id: 'video7',
+                title: 'Глаголы прошедшего времени',
+                description: 'Образование и использование глаголов в прошедшем времени.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-7'
+            },
+            {
+                id: 'video8',
+                title: 'Падежи: Именительный и Винительный',
+                description: 'Изучение первых двух падежей русского языка.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-8'
+            },
+            {
+                id: 'video9',
+                title: 'Падежи: Родительный и Дательный',
+                description: 'Изучение родительного и дательного падежей.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-9'
+            },
+            {
+                id: 'video10',
+                title: 'Падежи: Творительный и Предложный',
+                description: 'Завершающий урок по падежам русского языка.',
+                videoUrl: 'https://www.youtube.com/embed/your-video-id-10'
+            }
+        ];
+
+        // Обновим функцию initializeSidebar и добавим проверку
+        function initializeSidebar() {
+            const sidebarList = document.querySelector('.nav.flex-column');
+            if (!sidebarList) {
+                console.error('Sidebar list element not found');
+                return;
+            }
+
+            const sidebarContent = videoLessons.map(video => `
+                <li class="nav-item" data-video-id="${video.id}">
+                    <a class="nav-link d-flex justify-content-between align-items-center" href="#" onclick="loadVideo('${video.id}'); return false;">
+                        <span>${video.title}</span>
+                        <span class="completion-check">✓</span>
+                    </a>
+                </li>
+            `).join('');
+
+            sidebarList.innerHTML = sidebarContent;
+            console.log('Sidebar initialized with', videoLessons.length, 'videos');
+
+            // Загружаем первое видео при инициализации
+            const currentVideoId = getCurrentVideoId();
+            loadVideo(currentVideoId);
+        }
+
+        // Функция загрузки видео
+        function loadVideo(videoId) {
+            const video = videoLessons.find(v => v.id === videoId);
+            if (!video) return;
+
+            // Обновляем заголовок
+            document.querySelector('.video-container h2').textContent = video.title;
+            
+            // Обновляем iframe с видео
+            document.querySelector('.video-wrapper iframe').src = video.videoUrl;
+            
+            // Обновляем описание
+            document.querySelector('.lesson-content p').textContent = video.description;
+            
+            // Сбрасываем состояние кнопки
+            const completeButton = document.getElementById('markComplete');
+            completeButton.disabled = false;
+            completeButton.textContent = 'Отметить как просмотренное';
+
+            // Проверяем, было ли видео уже просмотрено
+            checkVideoCompletion(videoId);
+            
+            // Обновляем URL без перезагрузки страницы
+            history.pushState({videoId}, '', `/video?id=${videoId}`);
+
+            // Подсвечиваем текущее видео в сайдбаре
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-video-id="${videoId}"] .nav-link`).classList.add('active');
+        }
+
+        // Функция для проверки завершенности видео
+        async function checkVideoCompletion(videoId) {
+            if (!currentUser) return;
+
+            try {
+                const response = await fetch(`/video/progress/${currentUser}/${videoId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.completed) {
+                        const button = document.getElementById('markComplete');
+                        button.disabled = true;
+                        button.textContent = 'Завершено!';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking video completion:', error);
+            }
+        }
+
+        // Обновим обработчик загрузки страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            initializeSidebar();
+            fetchVideoProgress();
+        });
+
+        // Обработка навигации браузера (кнопки вперед/назад)
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.videoId) {
+                loadVideo(event.state.videoId);
+            }
+        });
+
+        function updateProgress(data) {
+            if (!data) {
+                console.error('No progress data received');
+                return;
+            }
+            
+            console.log('Progress data:', data); // Добавим для отладки
+            
+            const videosDone = parseInt(data.VideosDone) || 0;
+            const totalVideos = parseInt(data.TotalVideos) || videoLessons.length;
+            const progressPercentage = parseFloat(data.Percentage) || 0;
+            
+            console.log(`Videos done: ${videosDone}, Total: ${totalVideos}, Percentage: ${progressPercentage}`);
+            
+            document.getElementById('lessonProgress').style.width = `${progressPercentage}%`;
+            document.getElementById('progressText').textContent = 
+                `${videosDone}/${totalVideos} видео завершено (${Math.round(progressPercentage)}%)`;
+        }
+
+        async function fetchVideoProgress() {
+            if (!currentUser) return;
+
+            try {
+                console.log('Fetching progress for user:', currentUser);
+                const response = await fetch(`/course/progress/${currentUser}/russian`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Received progress data:', data);
+                    
+                    // Обновляем общий прогресс
+                    updateProgress(data);
+                    
+                    // Получаем ID текущего видео
+                    const currentVideoId = getCurrentVideoId();
+                    
+                    // Проверяем, завершено ли текущее видео
+                    const videoResponse = await fetch(`/video/progress/${currentUser}/${currentVideoId}`);
+                    if (videoResponse.ok) {
+                        const videoData = await videoResponse.json();
+                        if (videoData.completed) {
+                            const button = document.getElementById('markComplete');
+                            button.disabled = true;
+                            button.textContent = 'Завершено!';
+                        }
+                    }
+                    
+                    // Обновляем все чекмарки для завершенных видео
+                    document.querySelectorAll('.nav-item').forEach((item, index) => {
+                        const videoId = `video${index + 1}`;
+                        const checkmark = item.querySelector('.completion-check');
+                        
+                        fetch(`/video/progress/${currentUser}/${videoId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.completed) {
+                                    checkmark.style.display = 'inline';
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                    });
+                } else {
+                    console.error('Failed to fetch progress:', await response.text());
+                }
+            } catch (error) {
+                console.error('Error fetching progress:', error);
+            }
+        }
+
+        document.getElementById('markComplete').addEventListener('click', async function() {
+            if (!currentUser) {
+                alert('Пожалуйста, войдите в систему');
+                return;
+            }
+
+            const videoId = getCurrentVideoId();
+
+            try {
+                const response = await fetch('/video/progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUser,
+                        course: 'russian',
+                        video_id: videoId,
+                        completed: true
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+            this.disabled = true;
+                    this.textContent = 'Завершено!';
+                    
+                    // Обновляем отображение прогресса
+                    if (result.progress) {
+                        updateProgress(result.progress);
+                        
+                        // Обновляем чекмарк для текущего видео
+                        const currentItem = document.querySelector(`[data-video-id="${videoId}"]`);
+                        if (currentItem) {
+                            currentItem.querySelector('.completion-check').style.display = 'inline';
+                        }
+                    }
+                } else {
+                    console.error('Server error:', result.error);
+                    alert('Ошибка при сохранении прогресса: ' + (result.error || 'Неизвестная ошибка'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка при сохранении прогресса');
+            }
+        });
+
+        // Добавим функцию getCurrentVideoId в начало скрипта
+        function getCurrentVideoId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id') || 'video1'; // Возвращаем video1 если нет параметра id
+        }
+    </script>
+</body>
+</html> 

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Courses</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body class="light-mode">
 
@@ -17,14 +17,14 @@
       </div>
       <div class="nav-menu" id="navMenu">
         <ul>
-          <li><a href="index.html" class="link">Home</a></li>
-          <li><a href="contact.html" class="link">Contact us</a></li>
+          <li><a href="/" class="link">Home</a></li>
+          <li><a href="/contact" class="link">Contact us</a></li>
         </ul>
       </div>
       <div class="nav-menu" id="navMenuu">
         <div class="nav-button">
           <ul>
-            <li><a href="Login.html" id="Login" class="link">Log In / Sign Up</a></li>
+            <li><a href="/login" id="Login" class="link">Log In / Sign Up</a></li>
             <li><span id="userGreeting" style="display: none;"></span></li>
           </ul>
         </div>
@@ -39,14 +39,14 @@
   <h2 class="text-center mb-4">Our Courses</h2>
   <div class="row justify-content-center">
     <div class="col-md-4 mb-3 text-center">
-      <div class="card course-card p-0" data-link="test.html" onclick="selectCourse(this)" style="height: 180px; overflow: hidden;">
-        <img src="../kz.jpg" class="card-img-top" alt="Kazakh Language" style="object-fit: cover; width: 100%; height: 100%;">
+      <div class="card course-card p-0" data-link="/test" onclick="selectCourse(this)" style="height: 180px; overflow: hidden;">
+        <img src="/static/kz.jpg" class="card-img-top" alt="Kazakh Language" style="object-fit: cover; width: 100%; height: 100%;">
       </div>
       <h5 class="mt-2">Kazakh Language</h5>
     </div>
     <div class="col-md-4 mb-3 text-center">
-      <div class="card course-card p-0" data-link="general.html" onclick="selectCourse(this)" style="height: 180px; overflow: hidden;">
-        <img src="../rus.jpg" class="card-img-top" alt="Russian Language" style="object-fit: cover; width: 100%; height: 100%;">
+      <div class="card course-card p-0" data-link="/general" onclick="selectCourse(this)" style="height: 180px; overflow: hidden;">
+        <img src="/static/rus.jpg" class="card-img-top" alt="Russian Language" style="object-fit: cover; width: 100%; height: 100%;">
       </div>
       <h5 class="mt-2">Russian Language</h5>
     </div>

@@ -3,11 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>General English</title>
+  <title>Курс русского языка</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="/static/styles.css">
+  <style>
+    .wrapper {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #000000;
+      color: white;
+      padding-top: 80px; /* Space for header */
+      position: fixed;
+      left: 0;
+      height: 100%;
+      z-index: 99;
+    }
+
+    .main-content {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      padding: 20px;
+      padding-top: 80px; /* Space for header */
+    }
+
+    .sidebar-menu {
+      padding: 0;
+      list-style: none;
+    }
+
+    .sidebar-menu li {
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-menu li a {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-menu li:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .progress-section {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #4CAF50;
+      transition: width 0.3s ease;
+    }
+
+    .progress-details {
+      font-size: 14px;
+    }
+
+    .progress-details p {
+      margin: 5px 0;
+    }
+
+    .current-level {
+      background-color: #28a745;
+      color: white;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+  </style>
 </head>
-<body>
+<body class="light-mode">
 
 <header class="header py-3">
   <div class="container d-flex justify-content-between">
@@ -17,26 +101,70 @@
       </div>
       <div class="nav-menu" id="navMenu">
         <ul>
-          <li><a href="index.html" class="link">Home</a></li>
-          <li><a href="courses.html" class="link">Courses</a></li>
-          <li><a href="contact.html" class="link">Contact us</a></li>
+          <li><a href="/" class="link">Home</a></li>
+          <li><a href="/courses" class="link">Courses</a></li>
+          <li><a href="/contact" class="link">Contact us</a></li>
         </ul>
       </div>
       <div class="nav-menu" id="navMenuu">
         <div class="nav-button">
           <ul>
-            <li><a href="Login.html" id="Login" class="link">Log In / Sign Up</a></li>
+            <li><a href="/login" id="Login" class="link">Log In / Sign Up</a></li>
             <li><span id="userGreeting" style="display: none;"></span></li>
           </ul>
         </div>
       </div>
     </nav>
-    <button id="modeToggle" class="btn btn-outline-primary top-0 right-0 m-3">🌙</button>
+    <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3" onclick="toggleMode()">🌙</button>
     <button class="btn" id="logoutBtn" style="display: flex;" onclick="logout()">Log Out</button>
   </div>
 </header>
 
+<div class="wrapper">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="progress-section">
+      <h6>Прогресс курса: <span id="totalProgressText">0%</span></h6>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-details">
+        <div id="progressText">
+          <p>Видео: ${videoData.VideosDone}/${videoData.TotalVideos}</p>
+          <p>Тесты: ${completedTests}/${totalTests}</p>
+        </div>
+        <p style="font-weight: bold;" id="levelText">Ваш уровень: Не определен</p>
+      </div>
+    </div>
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/video">
+          <span>📺</span> Видеоуроки
+        </a>
+      </li>
+      <li>
+        <a href="/quiz">
+          <span>📝</span> Упражнения
+        </a>
+      </li>
+      <li>
+        <a href="/russian-quiz">
+          <span>🎯</span> Тест на уровень
+        </a>
+      </li>
+    </ul>
+  </nav>
 
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container">
+      <h1>Курс русского языка</h1>
+      <p>Добро пожаловать на курс русского языка! Здесь вы найдете все необходимые материалы для изучения.</p>
+      
+      <!-- Your existing content here -->
+    </div>
+  </div>
+</div>
 
 <footer class="footer text-center py-3" style="position: relative;">
   <p>SE-2304. All Rights Reserved.</p>
@@ -49,22 +177,17 @@
 <script>
   function toggleMode() {
     const body = document.body;
-    const containerDiv = document.getElementById("containerDiv");
     const modeToggleButton = document.getElementById("modeToggle");
     const isLightMode = body.classList.contains("light-mode");
 
     if (isLightMode) {
       body.classList.remove("light-mode");
       body.classList.add("dark-mode");
-      containerDiv.classList.remove("light-mode");
-      containerDiv.classList.add("dark-mode");
       modeToggleButton.textContent = "🌞";
       localStorage.setItem("theme", "dark-mode");
     } else {
       body.classList.remove("dark-mode");
       body.classList.add("light-mode");
-      containerDiv.classList.remove("dark-mode");
-      containerDiv.classList.add("light-mode");
       modeToggleButton.textContent = "🌙";
       localStorage.setItem("theme", "light-mode");
     }
@@ -116,6 +239,98 @@
     document.getElementById("userGreeting").style.display = "none";
     document.getElementById("logoutBtn").style.display = "none";
   }
+
+  async function updateProgress() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) return;
+
+    try {
+        const videoResponse = await fetch(`/course/progress/${currentUser}/russian`);
+        const videoData = await videoResponse.json();
+        
+        // Подсчитываем количество завершенных тестов
+        let completedTests = 0;
+        const totalTests = quizLessons.length;
+        
+        for (const quiz of quizLessons) {
+            const response = await fetch(`/quiz/progress/${currentUser}/${quiz.id}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.completed) {
+                    completedTests++;
+                }
+            }
+        }
+
+        const levelResponse = await fetch(`/user/progress/${currentUser}`);
+        const levelData = await levelResponse.json();
+
+        const totalItems = videoData.TotalVideos + totalTests;
+        const completedItems = videoData.VideosDone + completedTests;
+        const totalProgress = (completedItems / totalItems) * 100;
+        
+        document.querySelector('.progress-fill').style.width = `${totalProgress}%`;
+        document.getElementById('totalProgressText').textContent = `${Math.round(totalProgress)}%`;
+
+        document.getElementById('progressText').innerHTML = `
+            <p>Видео: ${videoData.VideosDone}/${videoData.TotalVideos}</p>
+            <p>Тесты: ${completedTests}/${totalTests}</p>
+        `;
+
+        document.getElementById('levelText').textContent =
+            `Ваш уровень: ${levelData.level || 'Не определен'}`;
+
+    } catch (error) {
+        console.error('Error updating progress:', error);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', updateProgress);
+
+  function showResources() {
+    alert('Resources section coming soon!');
+  }
+
+  function showNotes() {
+    alert('Notes section coming soon!');
+  }
+
+  function showGrammar() {
+    alert('Раздел грамматики скоро будет доступен!');
+  }
+
+  function showVocabulary() {
+    alert('Раздел словарного запаса скоро будет доступен!');
+  }
+
+  // Добавляем массив с данными всех тестов
+  const quizLessons = [
+      {
+          id: 'quiz1',
+          title: 'Базовая грамматика',
+          description: 'Проверка знаний базовой грамматики русского языка.'
+      },
+      {
+          id: 'quiz2',
+          title: 'Существительные',
+          description: 'Тест на знание существительных и их родов.'
+      },
+      {
+          id: 'quiz3',
+          title: 'Прилагательные',
+          description: 'Проверка знаний прилагательных и их согласования.'
+      },
+      {
+          id: 'quiz4',
+          title: 'Глаголы настоящего времени',
+          description: 'Тест на спряжение глаголов в настоящем времени.'
+      },
+      {
+          id: 'quiz5',
+          title: 'Глаголы прошедшего времени',
+          description: 'Проверка знаний глаголов в прошедшем времени.'
+      }
+  ];
 </script>
 
 </body>

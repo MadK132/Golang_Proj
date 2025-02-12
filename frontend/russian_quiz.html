@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест по русскому языку</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .option {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .option:hover {
+            background-color: #e9ecef;
+        }
+        .option.selected {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your header here -->
+
+    <div class="wrapper">
+        <button onclick="window.location.href='/general'" 
+                class="btn btn-secondary" 
+                style="position: fixed; top: 80px; left: 20px; z-index: 1000;">
+            <i class="fas fa-arrow-left"></i> Назад
+        </button>
+        <!-- Include your sidebar here -->
+
+        <div class="main-content">
+            <div class="quiz-container">
+                <h2>Тест по русскому языку</h2>
+                <div id="quiz"></div>
+                <button id="submitQuiz" class="btn btn-primary mt-3">Завершить тест</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const russianQuestions = [
+            {
+                level: "A1",
+                question: "Выберите правильное приветствие:",
+                options: ["Здравствуйте", "До свидания", "Спасибо", "Извините"],
+                correct: 0
+            },
+            {
+                level: "A2",
+                question: "Выберите правильное окончание: Я живу в Москв_",
+                options: ["а", "е", "у", "ы"],
+                correct: 1
+            },
+            {
+                level: "B1",
+                question: "Какое слово является синонимом к слову 'красивый'?",
+                options: ["Уродливый", "Прекрасный", "Грустный", "Быстрый"],
+                correct: 1
+            },
+            {
+                level: "B2",
+                question: "Выберите правильную форму причастия: 'читать' - '... книгу человек'",
+                options: ["читающий", "читавший", "прочитанный", "читаемый"],
+                correct: 0
+            },
+            {
+                level: "C1",
+                question: "Выберите правильное употребление деепричастия:",
+                options: [
+                    "Придя домой, я буду отдыхать",
+                    "Придя домой, меня ждал сюрприз",
+                    "Придя домой, телевизор был включен",
+                    "Придя домой, свет включился"
+                ],
+                correct: 0
+            }
+        ];
+
+        let currentQuiz = russianQuestions;
+        let userAnswers = new Array(currentQuiz.length).fill(null);
+
+        function displayQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            let html = '';
+
+            currentQuiz.forEach((q, questionIndex) => {
+                html += `
+                    <div class="question">
+                        <h5>Вопрос ${questionIndex + 1}: ${q.question}</h5>
+                        <div class="options">
+                            ${q.options.map((option, optionIndex) => `
+                                <div class="option ${userAnswers[questionIndex] === optionIndex ? 'selected' : ''}"
+                                     onclick="selectAnswer(${questionIndex}, ${optionIndex})">
+                                    ${option}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            quizContainer.innerHTML = html;
+        }
+
+        function selectAnswer(questionIndex, optionIndex) {
+            userAnswers[questionIndex] = optionIndex;
+            displayQuiz();
+        }
+
+        function checkLoginStatus() {
+            const currentUser = localStorage.getItem("currentUser");
+            if (!currentUser) {
+                alert("Пожалуйста, войдите в систему для прохождения теста");
+                window.location.href = "/login";
+                return false;
+            }
+            return true;
+        }
+
+        async function submitQuiz() {
+            if (!checkLoginStatus()) return;
+            
+            const score = userAnswers.reduce((acc, answer, index) => {
+                return acc + (answer === currentQuiz[index].correct ? 1 : 0);
+            }, 0);
+
+            const percentage = (score / currentQuiz.length) * 100;
+            let level = "A1";
+
+            if (percentage >= 90) level = "C1";
+            else if (percentage >= 75) level = "B2";
+            else if (percentage >= 60) level = "B1";
+            else if (percentage >= 40) level = "A2";
+
+            try {
+                const response = await fetch('/quiz/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: localStorage.getItem('currentUser'),
+                        course: 'russian',
+                        score: percentage,
+                        level: level,
+                        is_level_test: true
+                    })
+                });
+
+                if (response.ok) {
+                    alert(`Тест завершен!\nВаш уровень: ${level}\nРезультат: ${percentage}%`);
+                    window.location.href = '/general';
+                } else {
+                    alert('Ошибка при сохранении результатов');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при отправке результатов');
+            }
+        }
+
+        document.getElementById('submitQuiz').addEventListener('click', submitQuiz);
+        displayQuiz();
+    </script>
+</body>
+</html> 

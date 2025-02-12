@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Қазақ тілі тесті</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- Same styles as russian_quiz.html -->
+</head>
+<body>
+    <!-- Include your header here -->
+
+    <div class="wrapper">
+        <!-- Include your sidebar here -->
+
+        <div class="main-content">
+            <div class="quiz-container">
+                <h2>Қазақ тілі тесті</h2>
+                <div id="quiz"></div>
+                <button id="submitQuiz" class="btn btn-primary mt-3">Тестті аяқтау</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const kazakhQuestions = [
+            {
+                level: "A1",
+                question: "Сәлемдесудің дұрыс нұсқасын таңдаңыз:",
+                options: ["Сәлеметсіз бе", "Рахмет", "Кешіріңіз", "Сау болыңыз"],
+                correct: 0
+            },
+            {
+                level: "A2",
+                question: "Дұрыс жалғауды таңдаңыз: Мен Алматы_ тұрамын",
+                options: ["да", "де", "та", "те"],
+                correct: 0
+            },
+            {
+                level: "B1",
+                question: "Синоним табыңыз: 'әдемі'",
+                options: ["ұсқынсыз", "сұлу", "қайғылы", "жылдам"],
+                correct: 1
+            },
+            {
+                level: "B2",
+                question: "Есімшенің дұрыс формасын таңдаңыз: 'оқу' - '... кітап'",
+                options: ["оқыған", "оқитын", "оқылған", "оқылатын"],
+                correct: 2
+            },
+            {
+                level: "C1",
+                question: "Көсемшенің дұрыс қолданысын таңдаңыз:",
+                options: [
+                    "Үйге келе, демаламын",
+                    "Үйге келе, күтіп тұр",
+                    "Үйге келе, шам жанды",
+                    "Үйге келе, теледидар қосулы еді"
+                ],
+                correct: 0
+            }
+        ];
+
+        let currentQuiz = kazakhQuestions;
+        let userAnswers = new Array(currentQuiz.length).fill(null);
+
+        function displayQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            let html = '';
+
+            currentQuiz.forEach((q, questionIndex) => {
+                html += `
+                    <div class="question">
+                        <h5>Вопрос ${questionIndex + 1}: ${q.question}</h5>
+                        <div class="options">
+                            ${q.options.map((option, optionIndex) => `
+                                <div class="option ${userAnswers[questionIndex] === optionIndex ? 'selected' : ''}"
+                                     onclick="selectAnswer(${questionIndex}, ${optionIndex})">
+                                    ${option}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            quizContainer.innerHTML = html;
+        }
+
+        function selectAnswer(questionIndex, optionIndex) {
+            userAnswers[questionIndex] = optionIndex;
+            displayQuiz();
+        }
+
+        function checkLoginStatus() {
+            const currentUser = localStorage.getItem("currentUser");
+            if (!currentUser) {
+                alert("Тестті тапсыру үшін жүйеге кіріңіз");
+                window.location.href = "/login";
+                return false;
+            }
+            return true;
+        }
+
+        async function submitQuiz() {
+            if (!checkLoginStatus()) return;
+            
+            const score = userAnswers.reduce((acc, answer, index) => {
+                return acc + (answer === currentQuiz[index].correct ? 1 : 0);
+            }, 0);
+
+            const percentage = (score / currentQuiz.length) * 100;
+            let level = "A1";
+
+            if (percentage >= 90) level = "C1";
+            else if (percentage >= 75) level = "B2";
+            else if (percentage >= 60) level = "B1";
+            else if (percentage >= 40) level = "A2";
+
+            try {
+                const response = await fetch('/quiz/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: localStorage.getItem('currentUser'),
+                        course: 'kazakh',
+                        score: percentage,
+                        level: level,
+                        complete: true
+                    })
+                });
+
+                if (response.ok) {
+                    alert(`Тест аяқталды!\nСіздің деңгейіңіз: ${level}\nНәтиже: ${percentage}%`);
+                    window.location.href = '/test';
+                } else {
+                    alert('Нәтижелерді сақтау кезінде қате орын алды');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Нәтижелерді жіберу кезінде қате орын алды');
+            }
+        }
+
+        document.getElementById('submitQuiz').addEventListener('click', submitQuiz);
+        displayQuiz();
+    </script>
+</body>
+</html> 

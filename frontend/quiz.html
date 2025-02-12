@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .option.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        #submitQuiz {
+            margin-top: 20px;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            padding-top: 60px;
+        }
+
+        .sidebar-sticky {
+            height: calc(100vh - 60px);
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .nav.flex-column {
+            display: flex;
+            flex-direction: column !important;
+        }
+
+        .nav-item {
+            display: block;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-link:hover {
+            background-color: #e9ecef;
+        }
+
+        .nav-link.active {
+            background-color: #007bff;
+            color: white !important;
+        }
+
+        .completion-check {
+            color: #28a745;
+            display: none;
+            margin-left: 10px;
+        }
+
+        .nav-link.active .completion-check {
+            color: white !important;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .sidebar-heading {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: #6c757d;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .sidebar-sticky {
+                height: auto;
+            }
+        }
+
+        .answer-item {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .answer-item.correct {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid #28a745;
+        }
+
+        .answer-item.incorrect {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid #dc3545;
+        }
+
+        .answers-review {
+            margin-top: 30px;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .navigation-buttons button {
+            min-width: 120px;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <header class="header py-3">
+        <!-- Same header as other pages -->
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="sidebar-sticky">
+                    <button onclick="window.location.href='/general'" class="btn btn-secondary mb-3 w-100">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                    <h6 class="sidebar-heading">Прогресс тестов</h6>
+                    <div class="progress-container">
+                        <div class="progress">
+                            <div id="quizProgress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p class="mt-2" id="progressText">0/5 тестов завершено</p>
+                    </div>
+                    <h6 class="sidebar-heading">Доступные тесты</h6>
+                    <ul class="nav flex-column">
+                        <!-- Здесь будут отображаться тесты -->
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="quiz-container">
+                    <h2>Quiz Title</h2>
+                    <div id="quiz">
+                        <!-- Questions will be dynamically inserted here -->
+                    </div>
+                    <div class="result" id="quizResult">
+                        <!-- Results will be shown here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let answers = [];
+
+        const quizLessons = [
+            {
+                id: 'quiz1',
+                title: 'Базовая грамматика',
+                description: 'Проверка знаний базовой грамматики русского языка.'
+            },
+            {
+                id: 'quiz2',
+                title: 'Существительные',
+                description: 'Тест на знание существительных и их родов.'
+            },
+            {
+                id: 'quiz3',
+                title: 'Прилагательные',
+                description: 'Проверка знаний прилагательных и их согласования.'
+            },
+            {
+                id: 'quiz4',
+                title: 'Глаголы настоящего времени',
+                description: 'Тест на спряжение глаголов в настоящем времени.'
+            },
+            {
+                id: 'quiz5',
+                title: 'Глаголы прошедшего времени',
+                description: 'Проверка знаний глаголов в прошедшем времени.'
+            }
+        ];
+
+        const quizQuestions = {
+            quiz1: [
+                {
+                    question: "Что такое подлежащее?",
+                    options: [
+                        "Главный член предложения, обозначающий предмет речи",
+                        "Член предложения, обозначающий действие",
+                        "Часть речи, обозначающая признак",
+                        "Служебная часть речи"
+                    ],
+                    correct: 0
+                },
+                {
+                    question: "Какой частью речи является слово 'быстро'?",
+                    options: ["Существительное", "Прилагательное", "Наречие", "Глагол"],
+                    correct: 2
+                },
+                {
+                    question: "Что такое сказуемое?",
+                    options: [
+                        "Второстепенный член предложения",
+                        "Главный член предложения, обозначающий действие предмета",
+                        "Часть речи",
+                        "Дополнение"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Какое из этих слов является предлогом?",
+                    options: ["Но", "Около", "И", "Или"],
+                    correct: 1
+                },
+                {
+                    question: "Что такое местоимение?",
+                    options: [
+                        "Часть речи, которая указывает на предметы, признаки и количества",
+                        "Часть речи, обозначающая действие",
+                        "Служебная часть речи",
+                        "Часть речи, обозначающая признак"
+                    ],
+                    correct: 0
+                },
+                {
+                    question: "Какой знак препинания ставится между однородными членами предложения?",
+                    options: ["Точка", "Запятая", "Тире", "Двоеточие"],
+                    correct: 1
+                },
+                {
+                    question: "Что такое синонимы?",
+                    options: [
+                        "Слова с противоположным значением",
+                        "Слова, одинаковые по написанию",
+                        "Слова, близкие по значению",
+                        "Слова с разным значением"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Какое из этих слов является союзом?",
+                    options: ["На", "Под", "И", "К"],
+                    correct: 2
+                },
+                {
+                    question: "Что такое антонимы?",
+                    options: [
+                        "Слова с одинаковым значением",
+                        "Слова с противоположным значением",
+                        "Слова, одинаковые по написанию",
+                        "Слова одной части речи"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Какой член предложения отвечает на вопросы 'какой?', 'чей?', 'который?'?",
+                    options: ["Подлежащее", "Сказуемое", "Определение", "Дополнение"],
+                    correct: 2
+                }
+            ],
+            quiz2: [
+                {
+                    question: "Какого рода слово 'книга'?",
+                    options: ["Мужской", "Женский", "Средний", "Общий"],
+                    correct: 1
+                },
+                {
+                    question: "К какому склонению относится слово 'окно'?",
+                    options: ["1-е склонение", "2-е склонение", "3-е склонение", "Разносклоняемые"],
+                    correct: 1
+                },
+                {
+                    question: "Какого рода слово 'день'?",
+                    options: ["Женский", "Средний", "Мужской", "Общий"],
+                    correct: 2
+                },
+                {
+                    question: "К какому склонению относится слово 'тетрадь'?",
+                    options: ["1-е склонение", "2-е склонение", "3-е склонение", "Разносклоняемые"],
+                    correct: 2
+                },
+                {
+                    question: "Какого рода слово 'море'?",
+                    options: ["Мужской", "Женский", "Средний", "Общий"],
+                    correct: 2
+                },
+                {
+                    question: "Определите род слова 'кофе':",
+                    options: ["Женский", "Мужской", "Средний", "Общий"],
+                    correct: 1
+                },
+                {
+                    question: "К какому склонению относится слово 'мама'?",
+                    options: ["1-е склонение", "2-е склонение", "3-е склонение", "Разносклоняемые"],
+                    correct: 0
+                },
+                {
+                    question: "Какого рода слово 'врач'?",
+                    options: ["Только мужской", "Только женский", "Общий", "Средний"],
+                    correct: 2
+                },
+                {
+                    question: "Выберите слово женского рода:",
+                    options: ["Дождь", "Ночь", "День", "Конь"],
+                    correct: 1
+                },
+                {
+                    question: "К какому склонению относится слово 'время'?",
+                    options: ["1-е склонение", "2-е склонение", "3-е склонение", "Разносклоняемые"],
+                    correct: 3
+                }
+            ],
+            quiz3: [
+                {
+                    question: "Как изменяются прилагательные?",
+                    options: [
+                        "По родам, числам и падежам",
+                        "Только по числам",
+                        "Только по родам",
+                        "По временам"
+                    ],
+                    correct: 0
+                },
+                {
+                    question: "Какое окончание у прилагательного в словосочетании 'красив... дом'?",
+                    options: ["ый", "ая", "ое", "ые"],
+                    correct: 0
+                },
+                {
+                    question: "Выберите правильную форму: 'Нов... книга'",
+                    options: ["новый", "новая", "новое", "новые"],
+                    correct: 1
+                },
+                {
+                    question: "Как изменяется прилагательное в словосочетании 'син... небо'?",
+                    options: ["синий", "синяя", "синее", "синие"],
+                    correct: 2
+                },
+                {
+                    question: "Какое окончание у прилагательного 'красн... яблоки'?",
+                    options: ["ый", "ая", "ое", "ые"],
+                    correct: 3
+                },
+                {
+                    question: "Выберите верное согласование: 'Интересн... фильм'",
+                    options: ["интересный", "интересная", "интересное", "интересные"],
+                    correct: 0
+                },
+                {
+                    question: "Как правильно: 'Больш... окно'?",
+                    options: ["большой", "большая", "большое", "большие"],
+                    correct: 2
+                },
+                {
+                    question: "Выберите правильную форму: 'Умн... студенты'",
+                    options: ["умный", "умная", "умное", "умные"],
+                    correct: 3
+                },
+                {
+                    question: "Какое окончание в словосочетании 'старш... сестра'?",
+                    options: ["ий", "ая", "ее", "ие"],
+                    correct: 1
+                },
+                {
+                    question: "Как согласуется прилагательное: 'Сложн... задача'?",
+                    options: ["сложный", "сложная", "сложное", "сложные"],
+                    correct: 1
+                }
+            ],
+            quiz4: [
+                {
+                    question: "Как спрягается глагол 'читать' в настоящем времени (я)?",
+                    options: ["читаю", "читаешь", "читает", "читаем"],
+                    correct: 0
+                },
+                {
+                    question: "Выберите правильную форму глагола 'писать' (ты):",
+                    options: ["пишу", "пишешь", "пишет", "пишем"],
+                    correct: 1
+                },
+                {
+                    question: "Как правильно: 'Он ... письмо' (писать)",
+                    options: ["пишу", "пишешь", "пишет", "пишем"],
+                    correct: 2
+                },
+                {
+                    question: "Выберите форму глагола 'говорить' (мы):",
+                    options: ["говорю", "говоришь", "говорит", "говорим"],
+                    correct: 3
+                },
+                {
+                    question: "Как спрягается глагол 'жить' (вы)?",
+                    options: ["живу", "живёшь", "живёт", "живёте"],
+                    correct: 3
+                },
+                {
+                    question: "Правильная форма глагола 'думать' (они):",
+                    options: ["думаю", "думаешь", "думает", "думают"],
+                    correct: 3
+                },
+                {
+                    question: "Как изменяется глагол 'идти' (я)?",
+                    options: ["иду", "идёшь", "идёт", "идём"],
+                    correct: 0
+                },
+                {
+                    question: "Выберите форму глагола 'смотреть' (ты):",
+                    options: ["смотрю", "смотришь", "смотрит", "смотрим"],
+                    correct: 1
+                },
+                {
+                    question: "Как правильно: 'Она ... телевизор' (смотреть)",
+                    options: ["смотрю", "смотришь", "смотрит", "смотрим"],
+                    correct: 2
+                },
+                {
+                    question: "Форма глагола 'любить' (мы):",
+                    options: ["люблю", "любишь", "любит", "любим"],
+                    correct: 3
+                }
+            ],
+            quiz5: [
+                {
+                    question: "Как образуется прошедшее время глагола 'читать'?",
+                    options: ["читал", "читаю", "читать", "читает"],
+                    correct: 0
+                },
+                {
+                    question: "Выберите форму прошедшего времени: 'Она ... книгу' (читать)",
+                    options: ["читал", "читала", "читало", "читали"],
+                    correct: 1
+                },
+                {
+                    question: "Как правильно: 'Солнце ... ярко' (светить)",
+                    options: ["светил", "светила", "светило", "светили"],
+                    correct: 2
+                },
+                {
+                    question: "Форма прошедшего времени: 'Дети ... в парке' (гулять)",
+                    options: ["гулял", "гуляла", "гуляло", "гуляли"],
+                    correct: 3
+                },
+                {
+                    question: "Как изменяется глагол 'писать' в прошедшем времени (он)?",
+                    options: ["писал", "писала", "писало", "писали"],
+                    correct: 0
+                },
+                {
+                    question: "Выберите правильную форму: 'Девочка ... письмо' (написать)",
+                    options: ["написал", "написала", "написало", "написали"],
+                    correct: 1
+                },
+                {
+                    question: "Как правильно: 'Время ... быстро' (идти)",
+                    options: ["шёл", "шла", "шло", "шли"],
+                    correct: 2
+                },
+                {
+                    question: "Форма прошедшего времени: 'Мы ... домой' (вернуться)",
+                    options: ["вернулся", "вернулась", "вернулось", "вернулись"],
+                    correct: 3
+                },
+                {
+                    question: "Как изменяется глагол 'жить' в прошедшем времени (она)?",
+                    options: ["жил", "жила", "жило", "жили"],
+                    correct: 1
+                },
+                {
+                    question: "Выберите форму: 'Они ... задачу' (решить)",
+                    options: ["решил", "решила", "решило", "решили"],
+                    correct: 3
+                }
+            ]
+        };
+
+        function displayQuestion() {
+            const quizContainer = document.getElementById('quiz');
+            const question = questions[currentQuestion];
+            
+            let html = `
+                <div class="question">
+                    <h4>Вопрос ${currentQuestion + 1} из ${questions.length}</h4>
+                    <p>${question.question}</p>
+                    <div class="options">
+                        ${question.options.map((option, index) => `
+                            <div class="option ${answers[currentQuestion] === index ? 'selected' : ''}" 
+                                 onclick="selectOption(${index})">
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="navigation-buttons mt-3">
+                    ${currentQuestion > 0 ? 
+                        `<button class="btn btn-secondary" onclick="previousQuestion()">Предыдущий</button>` : 
+                        ''
+                    }
+                    ${currentQuestion < questions.length - 1 ? 
+                        `<button class="btn btn-primary" onclick="nextQuestion()">Следующий</button>` : 
+                        `<button class="btn btn-success" onclick="submitQuiz()">Завершить тест</button>`
+                    }
+                </div>
+            `;
+            
+            quizContainer.innerHTML = html;
+            updateProgress();
+        }
+
+        function nextQuestion() {
+            if (answers[currentQuestion] === null) {
+                alert('Пожалуйста, выберите ответ');
+                return;
+            }
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const answered = answers.filter(a => a !== null).length;
+            const progress = (answered / questions.length) * 100;
+            
+            document.getElementById('quizProgress').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = 
+                `${answered}/${questions.length} вопросов отвечено`;
+        }
+
+        function calculateScore() {
+            const correctAnswers = answers.reduce((acc, answer, index) => {
+                return acc + (answer === questions[index].correct ? 1 : 0);
+            }, 0);
+            return (correctAnswers / questions.length) * 100;
+        }
+
+        function loadQuiz(quizId) {
+            const quiz = quizLessons.find(q => q.id === quizId);
+            if (!quiz) return;
+
+            // Обновляем заголовок
+            document.querySelector('.quiz-container h2').textContent = quiz.title;
+            
+            // Загружаем вопросы для текущего квиза
+            questions = quizQuestions[quizId];
+            currentQuestion = 0;
+            answers = new Array(questions.length).fill(null);
+            
+            // Подсвечиваем текущий тест в сайдбаре
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-quiz-id="${quizId}"] .nav-link`).classList.add('active');
+
+            // Обновляем URL без перезагрузки страницы
+            history.pushState({quizId}, '', `/quiz?id=${quizId}`);
+            
+            // Показываем первый вопрос
+            displayQuestion();
+            
+            // Проверяем, был ли тест уже завершен
+            checkQuizCompletion(quizId);
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM loaded');
+            await initializeSidebar(); // Дожидаемся завершения инициализации сайдбара
+            const currentQuizId = getCurrentQuizId();
+            loadQuiz(currentQuizId);
+            fetchQuizProgress();
+        });
+
+        async function fetchQuizProgress() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) return;
+
+            try {
+                // Счетчик завершенных тестов
+                let completedQuizzes = 0;
+                const totalQuizzes = quizLessons.length; // Общее количество тестов
+
+                // Проверяем каждый тест
+                for (const quiz of quizLessons) {
+                    try {
+                        const response = await fetch(`/quiz/progress/${currentUser}/${quiz.id}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.completed) {
+                                completedQuizzes++;
+                                // Показываем галочку для завершенного теста
+                                const checkmark = document.querySelector(`[data-quiz-id="${quiz.id}"] .completion-check`);
+                                if (checkmark) {
+                                    checkmark.style.display = 'inline';
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error checking quiz ${quiz.id}:`, error);
+                    }
+                }
+
+                // Вычисляем процент завершенных тестов
+                const progressPercentage = (completedQuizzes / totalQuizzes) * 100;
+
+                // Обновляем прогресс-бар и текст
+                document.getElementById('quizProgress').style.width = `${progressPercentage}%`;
+                document.getElementById('progressText').textContent = 
+                    `${completedQuizzes}/${totalQuizzes} тестов завершено (${Math.round(progressPercentage)}%)`;
+
+            } catch (error) {
+                console.error('Error fetching progress:', error);
+            }
+        }
+
+        async function checkQuizCompletion(quizId) {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) return;
+
+            try {
+                const response = await fetch(`/quiz/progress/${currentUser}/${quizId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.completed) {
+                        // Показываем результаты предыдущей попытки
+                        let resultHtml = `
+                            <div class="question mb-4">
+                                <h3>Результаты теста</h3>
+                                <p>Правильных ответов: ${data.correct_answers} из ${data.total_questions}</p>
+                                <p>Ваш результат: ${data.score.toFixed(1)}%</p>
+                            </div>
+
+                            <div class="answers-review">
+                                <h4>Проверка ответов:</h4>
+                                ${quizQuestions[quizId].map((q, i) => `
+                                    <div class="answer-item ${data.user_answers[i] === q.correct ? 'correct' : 'incorrect'} mb-3">
+                                        <p class="mb-2"><strong>Вопрос ${i + 1}:</strong> ${q.question}</p>
+                                        <p class="mb-1">
+                                            <strong>Ваш ответ:</strong> 
+                                            <span class="${data.user_answers[i] === q.correct ? 'text-success' : 'text-danger'}">
+                                                ${q.options[data.user_answers[i]]}
+                                                ${data.user_answers[i] === q.correct ? 
+                                                    '<i class="fas fa-check text-success"></i>' : 
+                                                    '<i class="fas fa-times text-danger"></i>'}
+                                            </span>
+                                        </p>
+                                        ${data.user_answers[i] !== q.correct ? 
+                                            `<p class="mb-0 text-success">
+                                                <strong>Правильный ответ:</strong> ${q.options[q.correct]}
+                                            </p>` : 
+                                            ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <button class="btn btn-primary mt-3" onclick="restartQuiz('${quizId}')">Пройти тест заново</button>
+                        `;
+                        document.getElementById('quiz').innerHTML = resultHtml;
+
+                        // Обновляем чекмарк в сайдбаре
+                        const checkmark = document.querySelector(`[data-quiz-id="${quizId}"] .completion-check`);
+                        if (checkmark) {
+                            checkmark.style.display = 'inline';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking quiz completion:', error);
+            }
+        }
+
+        async function initializeSidebar() {
+            const sidebarList = document.querySelector('.nav.flex-column');
+            if (!sidebarList) {
+                console.error('Sidebar list element not found');
+                return;
+            }
+
+            const currentUser = localStorage.getItem('currentUser');
+            
+            // Создаем HTML для сайдбара
+            const sidebarContent = quizLessons.map(quiz => `
+                <li class="nav-item" data-quiz-id="${quiz.id}">
+                    <a class="nav-link d-flex justify-content-between align-items-center" href="#" onclick="loadQuiz('${quiz.id}'); return false;">
+                        <span>${quiz.title}</span>
+                        <span class="completion-check">✓</span>
+                    </a>
+                </li>
+            `).join('');
+
+            sidebarList.innerHTML = sidebarContent;
+
+            // Проверяем завершенные тесты и показываем галочки
+            if (currentUser) {
+                for (const quiz of quizLessons) {
+                    try {
+                        const response = await fetch(`/quiz/progress/${currentUser}/${quiz.id}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.completed) {
+                                const checkmark = document.querySelector(`[data-quiz-id="${quiz.id}"] .completion-check`);
+                                if (checkmark) {
+                                    checkmark.style.display = 'inline';
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error checking completion for quiz ${quiz.id}:`, error);
+                    }
+                }
+            }
+        }
+
+        function getCurrentQuizId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id') || 'quiz1';
+        }
+
+        function checkLoginStatus() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('Пожалуйста, войдите в систему для сохранения результатов');
+                return false;
+            }
+            return true;
+        }
+
+        async function submitQuiz() {
+            if (!checkLoginStatus()) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (answers.includes(null)) {
+                alert('Пожалуйста, ответьте на все вопросы');
+                return;
+            }
+
+            const score = calculateScore();
+            const currentQuizId = getCurrentQuizId();
+            const correctAnswersCount = answers.reduce((acc, answer, index) => 
+                acc + (answer === questions[index].correct ? 1 : 0), 0);
+
+            try {
+                const response = await fetch('/quiz/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: localStorage.getItem('currentUser'),
+                        course: 'russian',
+                        quiz_id: currentQuizId,
+                        score: score,
+                        correct_answers: correctAnswersCount,
+                        total_questions: questions.length,
+                        user_answers: answers,
+                        completed: true,
+                        is_level_test: false
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Показываем результаты
+                    let resultHtml = `
+                        <div class="question mb-4">
+                            <h3>Результаты теста</h3>
+                            <p>Правильных ответов: ${correctAnswersCount} из ${questions.length}</p>
+                            <p>Ваш результат: ${score.toFixed(1)}%</p>
+                        </div>
+
+                        <div class="answers-review">
+                            <h4>Проверка ответов:</h4>
+                            ${questions.map((q, i) => `
+                                <div class="answer-item ${answers[i] === q.correct ? 'correct' : 'incorrect'} mb-3">
+                                    <p class="mb-2"><strong>Вопрос ${i + 1}:</strong> ${q.question}</p>
+                                    <p class="mb-1">
+                                        <strong>Ваш ответ:</strong> 
+                                        <span class="${answers[i] === q.correct ? 'text-success' : 'text-danger'}">
+                                            ${q.options[answers[i]]}
+                                            ${answers[i] === q.correct ? 
+                                                '<i class="fas fa-check text-success"></i>' : 
+                                                '<i class="fas fa-times text-danger"></i>'}
+                                        </span>
+                                    </p>
+                                    ${answers[i] !== q.correct ? 
+                                        `<p class="mb-0 text-success">
+                                            <strong>Правильный ответ:</strong> ${q.options[q.correct]}
+                                        </p>` : 
+                                        ''}
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <button class="btn btn-primary mt-3" onclick="loadQuiz('${currentQuizId}')">Пройти тест заново</button>
+                    `;
+
+                    document.getElementById('quiz').innerHTML = resultHtml;
+
+                    // Обновляем чекмарк в сайдбаре
+                    const checkmark = document.querySelector(`[data-quiz-id="${currentQuizId}"] .completion-check`);
+                    if (checkmark) {
+                        checkmark.style.display = 'inline';
+                    }
+                    
+                    // Обновляем общий прогресс
+                    fetchQuizProgress();
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при сохранении результатов');
+            }
+        }
+
+        function restartQuiz(quizId) {
+            // Загружаем тот же тест заново
+            const quiz = quizLessons.find(q => q.id === quizId);
+            if (!quiz) return;
+
+            // Обновляем заголовок
+            document.querySelector('.quiz-container h2').textContent = quiz.title;
+            
+            // Загружаем вопросы для текущего квиза
+            questions = quizQuestions[quizId];
+            currentQuestion = 0;
+            answers = new Array(questions.length).fill(null);
+            
+            // Подсвечиваем текущий тест в сайдбаре
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-quiz-id="${quizId}"] .nav-link`).classList.add('active');
+
+            // Обновляем URL без перезагрузки страницы
+            history.pushState({quizId}, '', `/quiz?id=${quizId}`);
+            
+            // Показываем первый вопрос
+            displayQuestion();
+        }
+    </script>
+</body>
+</html> 
