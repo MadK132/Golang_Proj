@@ -783,7 +783,7 @@
         const currentUser = localStorage.getItem('currentUser');
         
         // Добавим массив с данными всех видеоуроков
-        let videoLessons = JSON.parse(localStorage.getItem('videoLessons')) || [
+        let videoLessons = JSON.parse(localStorage.getItem('videoLessonsRussian')) || [
             {
                 id: 'video1',
                 title: 'Введение в русский язык',
@@ -847,8 +847,8 @@
         ];
 
         // Если videoLessons пустой (первая загрузка), сохраняем начальные данные
-        if (!localStorage.getItem('videoLessons')) {
-            localStorage.setItem('videoLessons', JSON.stringify(videoLessons));
+        if (!localStorage.getItem('videoLessonsRussian')) {
+            localStorage.setItem('videoLessonsRussian', JSON.stringify(videoLessons));
         }
 
         // Обновим функцию initializeSidebar и добавим проверку
@@ -1228,7 +1228,7 @@
             // Добавляем видео в массив
             videoLessons.push(newVideo);
             // Сохраняем обновленный список в localStorage
-            localStorage.setItem('videoLessons', JSON.stringify(videoLessons));
+            localStorage.setItem('videoLessonsr', JSON.stringify(videoLessons));
 
             // Добавляем новое видео в сайдбар
             const sidebarMenu = document.querySelector('.sidebar-menu');
@@ -1335,7 +1335,7 @@
                 videoUrl
             };
 
-            localStorage.setItem('videoLessons', JSON.stringify(videoLessons));
+            localStorage.setItem('videoLessonsRussian', JSON.stringify(videoLessons));
             updateSidebar();
             loadVideo(videoId);
             closeEditModal();
@@ -1360,7 +1360,7 @@
             if (videoIndex === -1) return;
 
             videoLessons.splice(videoIndex, 1);
-            localStorage.setItem('videoLessons', JSON.stringify(videoLessons));
+            localStorage.setItem('videoLessonsRussian', JSON.stringify(videoLessons));
             
             // Обновляем нумерацию оставшихся видео
             videoLessons.forEach((video, index) => {

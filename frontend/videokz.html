@@ -547,15 +547,15 @@
             <!-- Sidebar -->
             <nav class="col-md-3 col-lg-2 d-md-block sidebar">
                 <div class="sidebar-sticky">
-                    <button onclick="window.location.href='/general'" class="btn btn-secondary mb-3 w-100">
-                        <i class="fas fa-arrow-left"></i> Назад
+                    <button onclick="window.location.href='/test'" class="btn btn-secondary mb-3 w-100">
+                        <i class="fas fa-arrow-left"></i> Артқа
                     </button>
-                    <h6 class="sidebar-heading">Прогресс курса</h6>
+                    <h6 class="sidebar-heading">Курс прогрессі</h6>
                     <div class="progress-container">
                         <div class="progress">
                             <div class="progress-bar" id="lessonProgress" style="width: 0%"></div>
                         </div>
-                        <p class="mt-2" id="progressText">0/10 видео завершено</p>
+                        <p class="mt-2" id="progressText">0/10 видео аяқталды</p>
                     </div>
                     <h6 class="sidebar-heading">Видеосабақтар</h6>
                     <ul class="sidebar-menu">
@@ -636,7 +636,7 @@
                         </iframe>
                     </div>
                     <div class="lesson-content">
-                        <h3>Описание урока</h3>
+                        <h3>Сабақ сипаттамасы</h3>
                         <p>Изучение русского алфавита, правил произношения и базовых звуков.</p>
                         <button id="markComplete" class="btn btn-primary">Отметить как выполненное</button>
                     </div>
@@ -861,7 +861,7 @@
 
             const sidebarContent = videoLessons.map(video => `
                 <li class="nav-item" data-video-id="${video.id}">
-                    <a class="nav-link d-flex justify-content-between align-items-center" href="#" onclick="loadVideo('${video.id}'); return false;">
+                    <a class="nav-link d-flex justify-content-between align-items-center" href="${video.url}" onclick="loadVideo('${video.id}'); return false;">
                         <span>${video.title}</span>
                         <span class="completion-check">✓</span>
                     </a>
@@ -955,7 +955,7 @@
             checkVideoCompletion(videoId);
             
             // Обновляем URL без перезагрузки страницы
-            history.pushState({videoId}, '', `/video?id=${videoId}`);
+            history.pushState({videoId}, '', `/videokz?id=${videoId}`);
         }
 
         // Обновляем обработчик загрузки страницы
@@ -966,7 +966,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const videoId = urlParams.get('id') || 'video1';
             if (!urlParams.get('id')) {
-                history.replaceState({videoId: 'video1'}, '', '/video?id=video1');
+                history.replaceState({videoId: 'video1'}, '', '/videokz?id=video1');
             }
             loadVideo(videoId);
             fetchVideoProgress();
@@ -1012,7 +1012,7 @@
                 const progressText = document.getElementById('progressText');
                 if (progressText) {
                     progressText.textContent = 
-                        `${completedCount}/${totalVideos} видео завершено (${Math.round(progressPercentage)}%)`;
+                        `${completedCount}/${totalVideos} видео аяқталды (${Math.round(progressPercentage)}%)`;
                 }
 
                 // Обновляем UI для всех видео
@@ -1111,11 +1111,7 @@
                         
                         progressBar.style.width = `${progressPercentage}%`;
                         progressText.textContent = `${completedCount}/${totalVideos} видео завершено`;
-                        try{
-                        window.location.reload();
-                        } catch (error) {
-                            console.error('Error reloading page:', error);
-                        }
+                        
                     }
                 } else {
                     // В случае ошибки возвращаем кнопку в исходное состояние
@@ -1236,7 +1232,7 @@
             newVideoElement.innerHTML = `
                 <a href="#${newId}" class="video-link">
                     <span class="video-icon">▶</span>
-                    <span class="video-number">Урок ${lastId + 1}</span>
+                    <span class="video-number">Сабақ ${lastId + 1}</span>
                     <span class="video-title">${title}</span>
                 </a>
             `;

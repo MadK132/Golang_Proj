@@ -1,22 +1,113 @@
 <!DOCTYPE html>
-<html lang="kk">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Қазақ тілі тесті</title>
+    <title>Тест по русскому языку</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
-    <!-- Same styles as russian_quiz.html -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Общие стили */
+        .quiz-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .option {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .option:hover {
+        }
+        .option.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Светлая тема */
+        .light-mode .question {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .light-mode .option {
+            background-color: white;
+            color: #333;
+            border-color: #ddd;
+        }
+        .light-mode .option:hover {
+            background-color: #e9ecef;
+        }
+        .light-mode .quiz-container {
+            background-color: white;
+            color: #333;
+        }
+
+        /* Темная тема */
+        .dark-mode .question {
+            background-color: #2d2d2d;
+            color: #fff;
+        }
+        .dark-mode .option {
+            background-color: #363636;
+            color: #fff;
+            border-color: #444;
+        }
+        .dark-mode .option:hover {
+            background-color: #404040;
+        }
+        .dark-mode .quiz-container {
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+        .dark-mode .option.selected {
+            background-color: #4CAF50;
+        }
+        .option-btn {
+            padding: 10px 20px;
+            border: 2px solid #007bff;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option-btn:hover {
+            background: #007bff;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <!-- Include your header here -->
+    <header class="header py-3">
+        <div class="container d-flex justify-content-between">
+            <nav class="nav">
+                <div class="nav-logo" style="padding-right: 20%">
+                    <p>STUDY</p>
+                </div>
+            </nav>
+            <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3">🌙</button>
+        </div>
+    </header>
 
     <div class="wrapper">
+        <button onclick="window.location.href='/test'" 
+                class="btn btn-secondary" 
+                style="position: fixed; top: 80px; left: 20px; z-index: 1000;">
+                <i class="fas fa-arrow-left"></i> Артқа
+        </button>
         <!-- Include your sidebar here -->
 
         <div class="main-content">
-            <div class="quiz-container">
-                <h2>Қазақ тілі тесті</h2>
+            <div id="quiz-container" class="quiz-container">
+                <h2>Қазақ тіліндегі тест</h2>
                 <div id="quiz"></div>
                 <button id="submitQuiz" class="btn btn-primary mt-3">Тестті аяқтау</button>
             </div>
@@ -24,55 +115,141 @@
     </div>
 
     <script>
-        const kazakhQuestions = [
+        const questions = [
+          
             {
-                level: "A1",
-                question: "Сәлемдесудің дұрыс нұсқасын таңдаңыз:",
-                options: ["Сәлеметсіз бе", "Рахмет", "Кешіріңіз", "Сау болыңыз"],
+                question: "Казах тіліндегі сөздердің көпше түрі қалай жасалады?",
+                options: ["-лар, -лер", "-дар, -дер", "-тар, -тер"],
                 correct: 0
             },
             {
-                level: "A2",
-                question: "Дұрыс жалғауды таңдаңыз: Мен Алматы_ тұрамын",
-                options: ["да", "де", "та", "те"],
-                correct: 0
-            },
-            {
-                level: "B1",
-                question: "Синоним табыңыз: 'әдемі'",
-                options: ["ұсқынсыз", "сұлу", "қайғылы", "жылдам"],
+                question: "Қазақ тіліндегі зат есімнің неше түрі бар?",
+                options: ["2", "3", "4"],
                 correct: 1
             },
             {
-                level: "B2",
-                question: "Есімшенің дұрыс формасын таңдаңыз: 'оқу' - '... кітап'",
-                options: ["оқыған", "оқитын", "оқылған", "оқылатын"],
+                question: "Қазақ тілінде қалай шақыру есімдерін табуға болады?",
+                options: ["-шы, -ші", "-па, -пе", "-бы, -бі"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тіліне тән дауыссыздар нешеу?",
+                options: ["6", "7", "8"],
+                correct: 1
+            },
+            {
+                question: "Қазақ тілінде көмекші етістіктер не үшін қолданылады?",
+                options: ["Етістікке мән қосу үшін", "Зат есімді толықтыру үшін", "Сын есімдерді жасау үшін"],
+                correct: 0
+            },
+            {
+                question: "Қазақстан Республикасының мемлекеттік тілі қандай?",
+                options: ["Қазақ тілі", "Орыс тілі", "Ағылшын тілі"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тілінде неше септік бар?",
+                options: ["7", "6", "5"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тіліндегі шақтарды атаңыз.",
+                options: ["Өткен шақ, келер шақ", "Қазіргі шақ, өткен шақ", "Келер шақ, болымсыз шақ"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тілінде қыстырма сөздер дегеніміз не?",
+                options: ["Қосымша сөздер", "Қосымшасы жоқ сөздер", "Айтылмышты өзгерту үшін қолданылатын сөздер"],
                 correct: 2
             },
             {
-                level: "C1",
-                question: "Көсемшенің дұрыс қолданысын таңдаңыз:",
-                options: [
-                    "Үйге келе, демаламын",
-                    "Үйге келе, күтіп тұр",
-                    "Үйге келе, шам жанды",
-                    "Үйге келе, теледидар қосулы еді"
-                ],
+                question: "Қазақ тіліндегі ең көп қолданылатын қосымшаны атаңыз.",
+                options: ["-шы, -ші", "-ды, -ді", "-ға, -ге"],
+                correct: 1
+            },
+            {
+                question: "Қазақ тілінде сөз таптарының ішінде қайсысы жоқ?",
+                options: ["Сын есім", "Үстеу", "Есімше"],
+                correct: 2
+            },
+            {
+                question: "Қазақ тілінде көмекші етістік қалай жасалады?",
+                options: ["Етістікпен қосылып, етістік жасайды", "Сын есіммен қосылып, етістік жасайды", "Зат есіммен қосылып, етістік жасайды"],
                 correct: 0
+            },
+            {
+                question: "Қазақ тілінде сөздер қандай тәсілдермен жасалады?",
+                options: ["Түбір мен қосымшалар арқылы", "Тек түбірмен", "Тек қосымшалармен"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тіліндегі фразеологизм дегеніміз не?",
+                options: ["Қарапайым сөздер", "Көбінесе тұтас мағынасы бар сөздер", "Өздігінен қолданылмайтын сөздер"],
+                correct: 1
+            },
+            {
+                question: "Қазақ тілінде қай сөздердің түбірі бірдей?",
+                options: ["Қанат, қанатты", "Мектеп, оқу", "Саяхат, саябақ"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тілінде қандай сөз таптары бар?",
+                options: ["Зат есім, етістік, сын есім", "Зат есім, сан есім, етістік", "Сын есім, үстеу, есімше"],
+                correct: 1
+            },
+            {
+                question: "Қазақ тілінде есімдер қашан септеледі?",
+                options: ["Барлық уақытта", "Тек сын есімдермен", "Септік түрлерінде"],
+                correct: 2
+            },
+            {
+                question: "Қазақ тілінде сөйлем қандай түрге бөлінеді?",
+                options: ["Хабарлы, сұраулы, бұйрықты", "Тек хабарлы", "Тек сұраулы"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тілінде қай сөздер меншікті есім болып табылады?",
+                options: ["Көшеге, мектеп", "Алматы, Астана", "Көз, құлақ"],
+                correct: 1
+            },
+            {
+                question: "Қазақ тіліндегі етістікке неше түрлі өзгерістер болады?",
+                options: ["3", "5", "7"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тілінде қандай сөйлемнің түрлері бар?",
+                options: ["Хабарлы, сұраулы", "Бұйрықты, сұраулы", "Хабарлы, есімді"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тілінде сөздердің мағынасы неге байланысты өзгеруі мүмкін?",
+                options: ["Контекстке", "Тек грамматикалық ережелерге", "Тек сөздердің ретіне"],
+                correct: 0
+            },
+            {
+                question: "Қазақ тіліндегі жаттығулардың қай түрі пайдаланылады?",
+                options: ["Тек жазбаша", "Тек ауызша", "Жазбаша және ауызша"],
+                correct: 2
+            },
+            {
+                question: "Қазақ тілінде араб әріптерімен жазылған сөздер көбінесе неге тән?",
+                options: ["Сауаттылыққа", "Дінге", "Тарихқа"],
+                correct: 1
             }
         ];
+    
 
-        let currentQuiz = kazakhQuestions;
-        let userAnswers = new Array(currentQuiz.length).fill(null);
+        let userAnswers = new Array(questions.length).fill(null);
 
         function displayQuiz() {
             const quizContainer = document.getElementById('quiz');
             let html = '';
 
-            currentQuiz.forEach((q, questionIndex) => {
+            questions.forEach((q, questionIndex) => {
                 html += `
                     <div class="question">
-                        <h5>Вопрос ${questionIndex + 1}: ${q.question}</h5>
+                        <h5>Сұрақ ${questionIndex + 1}: ${q.question}</h5>
                         <div class="options">
                             ${q.options.map((option, optionIndex) => `
                                 <div class="option ${userAnswers[questionIndex] === optionIndex ? 'selected' : ''}"
@@ -96,7 +273,7 @@
         function checkLoginStatus() {
             const currentUser = localStorage.getItem("currentUser");
             if (!currentUser) {
-                alert("Тестті тапсыру үшін жүйеге кіріңіз");
+                alert("Пожалуйста, войдите в систему для прохождения теста");
                 window.location.href = "/login";
                 return false;
             }
@@ -107,19 +284,19 @@
             if (!checkLoginStatus()) return;
             
             const score = userAnswers.reduce((acc, answer, index) => {
-                return acc + (answer === currentQuiz[index].correct ? 1 : 0);
+                return acc + (answer === questions[index].correct ? 1 : 0);
             }, 0);
 
-            const percentage = (score / currentQuiz.length) * 100;
+            const percentage = (score / questions.length) * 100;
             let level = "A1";
 
-            if (percentage >= 90) level = "C1";
-            else if (percentage >= 75) level = "B2";
-            else if (percentage >= 60) level = "B1";
+            if (percentage >= 85) level = "C1";
+            else if (percentage >= 70) level = "B2";
+            else if (percentage >= 55) level = "B1";
             else if (percentage >= 40) level = "A2";
 
             try {
-                const response = await fetch('/quiz/submit', {
+                const response = await fetch('/level-test/submit', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -128,25 +305,69 @@
                         user_id: localStorage.getItem('currentUser'),
                         course: 'kazakh',
                         score: percentage,
-                        level: level,
-                        complete: true
+                        level: level
                     })
                 });
 
                 if (response.ok) {
                     alert(`Тест аяқталды!\nСіздің деңгейіңіз: ${level}\nНәтиже: ${percentage}%`);
-                    window.location.href = '/test';
+                    window.location.href = '/general';
                 } else {
-                    alert('Нәтижелерді сақтау кезінде қате орын алды');
+                    alert('Нәтиже сақтауда қате');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Нәтижелерді жіберу кезінде қате орын алды');
+                alert('Нәтиже жіберуде қате');
             }
         }
 
         document.getElementById('submitQuiz').addEventListener('click', submitQuiz);
         displayQuiz();
+
+        // Функция для переключения темы
+        function toggleMode() {
+            const body = document.body;
+            const modeToggleButton = document.getElementById("modeToggle");
+            const isLightMode = body.classList.contains("light-mode");
+
+            if (isLightMode) {
+                body.classList.remove("light-mode");
+                body.classList.add("dark-mode");
+                modeToggleButton.textContent = "🌞";
+                localStorage.setItem("theme", "dark-mode");
+            } else {
+                body.classList.remove("dark-mode");
+                body.classList.add("light-mode");
+                modeToggleButton.textContent = "🌙";
+                localStorage.setItem("theme", "light-mode");
+            }
+        }
+
+        // Инициализация темы при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem("theme");
+            const body = document.body;
+            const modeToggleButton = document.getElementById("modeToggle");
+
+            if (savedTheme) {
+                body.classList.remove("light-mode", "dark-mode");
+                body.classList.add(savedTheme);
+                if (savedTheme === "dark-mode") {
+                    modeToggleButton.textContent = "🌞";
+                } else {
+                    modeToggleButton.textContent = "🌙";
+                }
+            } else {
+                body.classList.add("light-mode");
+                modeToggleButton.textContent = "🌙";
+            }
+
+            // Добавляем обработчик для кнопки переключения темы
+            modeToggleButton.addEventListener("click", toggleMode);
+
+            // Отображаем тест
+            displayQuiz();
+        });
     </script>
 </body>
 </html> 
