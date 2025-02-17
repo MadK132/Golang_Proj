@@ -4,20 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Қазақ тілі курсы</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     .wrapper {
       display: flex;
       width: 100%;
+    }
+
+    body {
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     .sidebar {
       width: 250px;
       background: #000000;
       color: white;
-      padding-top: 80px;
+      padding-top: 80px; /* Space for header */
       position: fixed;
       left: 0;
       height: 100%;
@@ -28,7 +33,8 @@
       margin-left: 250px;
       width: calc(100% - 250px);
       padding: 20px;
-      padding-top: 80px;
+      padding-top: 80px; /* Space for header */
+      flex: 1;
     }
 
     .sidebar-menu {
@@ -54,23 +60,9 @@
     }
 
     .progress-section {
-      padding: 20px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      background: #333;
-      height: 10px;
-      border-radius: 5px;
-      margin: 10px 0;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: #007bff;
-      border-radius: 5px;
-      width: 0%;
-      transition: width 0.3s ease;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
     }
 
     .progress-details {
@@ -80,9 +72,91 @@
     .progress-details p {
       margin: 5px 0;
     }
+
+    .current-level {
+      background-color: #28a745;
+      color: white;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+
+    .progress-bar {
+      background-color: #f0f0f0;
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background-color: #28a745;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .card-title {
+      color: #007bff; /* синий для светлой темы */
+      margin-bottom: 1rem;
+    }
+
+    /* Цвет заголовков карточек в темной теме */
+    .dark-mode .card-title {
+      color: #00d084; /* мятно-зеленый для темной темы */
+    }
+
+    .list-unstyled li {
+      margin-bottom: 0.8rem;
+      color: #666;
+    }
+
+    /* Цвет текста списков в темной теме */
+    .dark-mode .list-unstyled li {
+      color: #b0b0b0;
+    }
+
+    .lead {
+      color: #666;
+      margin-bottom: 2rem;
+    }
+
+    .footer {
+      margin-top: auto;
+      background-color: #000000;
+      color: white;
+      padding: 20px 0;
+    }
+
+    .card-img-top {
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
   </style>
 </head>
-<body>
+<body class="light-mode">
+
 <header class="header py-3">
   <div class="container d-flex justify-content-between">
     <nav class="nav">
@@ -91,9 +165,9 @@
       </div>
       <div class="nav-menu" id="navMenu">
         <ul>
-          <li><a href="/" class="link">Home</a></li>
-          <li><a href="/courses" class="link">Courses</a></li>
-          <li><a href="/contact" class="link">Contact us</a></li>
+          <li><a href="/" class="link">Басты бет</a></li>
+          <li><a href="/courses" class="link">Курстар</a></li>
+          <li><a href="/contact" class="link">Байланыс</a></li>
         </ul>
       </div>
       <div class="nav-menu" id="navMenuu">
@@ -105,8 +179,8 @@
         </div>
       </div>
     </nav>
-    <button id="modeToggle" class="btn btn-outline-primary top-0 right-0 m-3">🌙</button>
-    <button class="btn" id="logoutBtn" style="display: flex;" onclick="logout()">Log Out</button>
+    <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3">🌙</button>
+    <button class="btn" id="logoutBtn" style="display: none;" onclick="logout()">Log Out</button>
   </div>
 </header>
 
@@ -114,26 +188,27 @@
   <!-- Sidebar -->
   <nav class="sidebar">
     <div class="progress-section">
-      <h6>Курс прогресі</h6>
+      <h6>Курс прогресі: <span id="totalProgressText">0%</span></h6>
       <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-fill" id="totalProgress" style="width: 0%"></div>
       </div>
-      <div class="progress-info">
-        <p>Тіл білу деңгейі: <span id="languageLevel">Анықталмаған</span></p>
-        <p>Бейне сабақтар: <span id="videoProgress">0/10</span></p>
-        <p>Тесттер: <span id="quizProgress">0/5</span></p>
-        <p>Жалпы прогресс: <span id="totalProgress">0%</span></p>
+      <div class="progress-details">
+        <div>
+          <p>Видео: <span id="videoProgressText">0/0 видео аяқталды</span></p>
+          <p>Тесттер: <span id="quizProgressText">0/0 тест аяқталды</span></p>
+          <p>Тіл деңгейі: <span id="levelText">Анықталмаған</span></p>
+        </div>
       </div>
     </div>
     <ul class="sidebar-menu">
       <li>
-        <a href="/video">
-          <span>📺</span> Бейне сабақтар
+        <a href="/videokz">
+          <span>📺</span> Видеосабақтар
         </a>
       </li>
       <li>
-        <a href="/quiz">
-          <span>📝</span> Тапсырмалар
+        <a href="/quizkz">
+          <span>📝</span> Жаттығулар
         </a>
       </li>
       <li>
@@ -147,61 +222,192 @@
   <!-- Main Content -->
   <div class="main-content">
     <div class="container">
-      <h1>Қазақ тілі курсы</h1>
-      <p>Қош келдіңіз! Бұл курс қазақ тілін үйренуге арналған.</p>
-      
-      <!-- Your existing content here -->
+      <h1 style="text-align: center">Қазақ тілі курсы</h1>
+
+      <div class="row mt-4">
+        <!-- Карточка о грамматике -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="/static/Грамм.jpg" class="card-img-top" alt="Грамматика">
+            <div class="card-body">
+              <h5 class="card-title">Қазақ тілінің грамматикасы</h5>
+              <p class="card-text">Қазақ тілінің негізгі грамматикасын үйреніңіз: септіктер, етістік шақтары, зат есімдер және тағы басқалар.</p>
+              <ul class="list-unstyled">
+                <li>✓ 7 септік</li>
+                <li>✓ 3 етістік шағы</li>
+                <li>✓ Зат есім түрлері</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Карточка о произношении -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="/static/Айтылым.jpg" class="card-img-top" alt="Произношение">
+            <div class="card-body">
+              <h5 class="card-title">Айтылым</h5>
+              <p class="card-text">Қазақ тілінің дыбыстары мен сөздерін дұрыс айтуды үйреніңіз.</p>
+              <ul class="list-unstyled">
+                <li>✓ 42 әріп</li>
+                <li>✓ Сөз екпіні</li>
+                <li>✓ Сөйлем интонациясы</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Карточка о словарном запасе -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="/static/Кор.jpg" class="card-img-top" alt="Словарный запас">
+            <div class="card-body">
+              <h5 class="card-title">Сөздік қор</h5>
+              <p class="card-text">Біздің тақырыптық сабақтар арқылы сөздік қорыңызды кеңейтіңіз.</p>
+              <ul class="list-unstyled">
+                <li>✓ Негізгі сөздер</li>
+                <li>✓ Тұрақты тіркестер</li>
+                <li>✓ Сөйлеу мәнері</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <!-- Карточка о практике -->
+        <div class="col-md-12 mb-4">
+          <div class="card h-100">
+            <div class="card-body d-flex">
+              <div class="col-md-4">
+                <img src="/static/Прак.jpg" class="img-fluid rounded" alt="Практика">
+              </div>
+              <div class="col-md-8">
+                <h5 class="card-title">Тіл практикасы</h5>
+                <p class="card-text">Біздің интерактивті жаттығулар мен тесттер арқылы қазақ тілін үнемі жаттығыңыз.</p>
+                <div class="row">
+                  <div class="col-md-6">
+                    <ul class="list-unstyled">
+                      <li>✓ Интерактивті жаттығулар</li>
+                      <li>✓ Грамматикалық тесттер</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <ul class="list-unstyled">
+                      <li>✓ Сөздік қор тесттері</li>
+                      <li>✓ Деңгей анықтау тесті</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<footer class="footer text-center py-3" style="position: relative ;">
-  <p>SE-2304. All Rights Reserved.</p>
+<footer class="footer text-center">
+  <p class="m-0">SE-2304. All Rights Reserved.</p>
 </footer>
 
-<script>
-  function toggleMode() {
-    const body = document.body;
-    const modeToggleButton = document.getElementById("modeToggle");
-    const isLightMode = body.classList.contains("light-mode");
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    if (isLightMode) {
-      body.classList.remove("light-mode");
-      body.classList.add("dark-mode");
-      modeToggleButton.textContent = "🌞";
-      localStorage.setItem("theme", "dark-mode");
-    } else {
-      body.classList.remove("dark-mode");
-      body.classList.add("light-mode");
-      modeToggleButton.textContent = "🌙";
-      localStorage.setItem("theme", "light-mode");
-    }
+<script>
+  // Инициализируем массивы с данными по умолчанию
+  const defaultVideoLessons = [
+      {
+          id: 'video1',
+          title: 'Қазақ тіліне кіріспе',
+          description: 'Қазақ тілінің негізгі ұғымдары.',
+          videoUrl: 'https://www.youtube.com/embed/example1'
+      },
+      {
+          id: 'video2',
+          title: 'Әліпби және айтылым',
+          description: 'Қазақ әліпбиі мен айтылым.',
+          videoUrl: 'https://www.youtube.com/embed/example2'
+      },
+      {
+          id: 'video3',
+          title: 'Негізгі грамматика',
+          description: 'Қазақ тілінің грамматикасы.',
+          videoUrl: 'https://www.youtube.com/embed/example3'
+      }
+  ];
+
+  const defaultQuizLessons = [
+      {
+          id: 'quiz1',
+          title: 'Негізгі грамматика',
+          description: 'Қазақ тілінің негізгі грамматикасын тексеру.'
+      },
+      {
+          id: 'quiz2',
+          title: 'Зат есім',
+          description: 'Зат есім тесті.'
+      },
+      {
+          id: 'quiz3',
+          title: 'Сын есім',
+          description: 'Сын есім тесті.'
+      },
+      {
+          id: 'quiz4',
+          title: 'Осы шақ етістіктері',
+          description: 'Осы шақ етістіктері тесті.'
+      },
+      {
+          id: 'quiz5',
+          title: 'Өткен шақ етістіктері',
+          description: 'Өткен шақ етістіктері тесті.'
+      }
+  ];
+
+  // Сохраняем начальные данные в localStorage при первой загрузке
+  if (!localStorage.getItem('videoLessons')) {
+      localStorage.setItem('videoLessons', JSON.stringify(defaultVideoLessons));
+  }
+  if (!localStorage.getItem('quizLessons')) {
+      localStorage.setItem('quizLessons', JSON.stringify(defaultQuizLessons));
   }
 
-  window.addEventListener("load", function() {
+  // Объединим все обработчики в одну функцию DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', function() {
     const savedTheme = localStorage.getItem("theme");
     const body = document.body;
+    const sidebar = document.querySelector(".sidebar");
     const modeToggleButton = document.getElementById("modeToggle");
+    const progressFill = document.querySelector(".progress-fill");
 
     if (savedTheme) {
-      body.classList.remove("light-mode", "dark-mode");
-      body.classList.add(savedTheme);
+        body.classList.remove("light-mode", "dark-mode");
+        body.classList.add(savedTheme);
+        sidebar.classList.remove("light-mode", "dark-mode");
+        sidebar.classList.add(savedTheme);
 
-      if (savedTheme === "dark-mode") {
-        modeToggleButton.textContent = "🌞";
-      } else {
-        modeToggleButton.textContent = "🌙";
-      }
+        if (savedTheme === "dark-mode") {
+            modeToggleButton.textContent = "🌞";
+            progressFill.style.backgroundColor = "#4CAF50"; // зеленый для темной темы
+        } else {
+            modeToggleButton.textContent = "🌙";
+            progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы
+        }
     } else {
-      body.classList.add("light-mode");
-      modeToggleButton.textContent = "🌙";
+        body.classList.add("light-mode");
+        sidebar.classList.add("light-mode");
+        modeToggleButton.textContent = "🌙";
+        progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы по умолчанию
     }
-  });
 
-  document.getElementById("modeToggle").addEventListener("click", toggleMode);
-  window.onload = function() {
+    // Добавляем обработчик для кнопки переключения темы
+    modeToggleButton.addEventListener("click", toggleMode);
+
+    // Проверка авторизации
     const currentUser = localStorage.getItem("currentUser");
-
     if (currentUser) {
       document.getElementById("Login").style.display = "none";
       document.getElementById("userGreeting").style.display = "inline";
@@ -212,94 +418,110 @@
       document.getElementById("userGreeting").style.display = "none";
       document.getElementById("logoutBtn").style.display = "none";
     }
+
+    // Обновляем прогресс
+    updateProgress();
+  });
+
+  // Функция toggleMode остается без изменений
+  function toggleMode() {
+    const body = document.body;
+    const modeToggleButton = document.getElementById("modeToggle");
+    const sidebar = document.querySelector(".sidebar");
+    const progressFill = document.querySelector(".progress-fill");
+    const isLightMode = body.classList.contains("light-mode");
+
+    if (isLightMode) {
+        // Переключаем на темную тему
+        body.classList.remove("light-mode");
+        body.classList.add("dark-mode");
+        sidebar.classList.remove("light-mode");
+        sidebar.classList.add("dark-mode");
+        progressFill.style.backgroundColor = "#4CAF50"; // зеленый для темной темы
+        modeToggleButton.textContent = "🌞";
+        localStorage.setItem("theme", "dark-mode");
+    } else {
+        // Переключаем на светлую тему
+        body.classList.remove("dark-mode");
+        body.classList.add("light-mode");
+        sidebar.classList.remove("dark-mode");
+        sidebar.classList.add("light-mode");
+        progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы
+        modeToggleButton.textContent = "🌙";
+        localStorage.setItem("theme", "light-mode");
+    }
   }
 
   function logout() {
     localStorage.removeItem("currentUser");
-    document.getElementById("Login").style.display = "inline";
-    document.getElementById("userGreeting").style.display = "none";
-    document.getElementById("logoutBtn").style.display = "none";
+    window.location.reload();
   }
 
-  // Update progress bar
-  function updateProgress(progress) {
-    document.getElementById('progressFill').style.width = progress + '%';
-    document.getElementById('progressText').textContent = progress + '%';
+  // Функция для обновления прогресса
+  async function updateProgress() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) return;
+
+    // Получаем актуальные данные из localStorage
+    const videoLessons = JSON.parse(localStorage.getItem('videoLessons'));
+    const quizLessons = JSON.parse(localStorage.getItem('quizLessons'));
+    let videoProgress = 0;
+
+    try {
+        // Получаем прогресс по видео из базы данных
+        const videoResponse = await fetch(`videos/completed/${currentUser}/kazakh`);
+        if (videoResponse.ok) {
+            const videoData = await videoResponse.json();
+            const completedCount = videoData.length || 0;
+            document.getElementById('videoProgressText').textContent = 
+                `${completedCount}/${videoLessons.length} видео завершено`;
+            videoProgress = completedCount;
+        }
+
+        // Получаем прогресс по тестам
+        const quizResponse = await fetch(`/quizzes/completed/${currentUser}/kazakh`);
+        if (quizResponse.ok) {
+            const quizData = await quizResponse.json();
+            const completedQuizzes = quizData.length || 0;
+            document.getElementById('quizProgressText').textContent = 
+                `${completedQuizzes}/${quizLessons.length} тестов завершено`;
+
+            // Обновляем общий прогресс на основе завершенных тестов и видео
+            const totalCompleted = videoProgress + completedQuizzes;
+            const totalItems = videoLessons.length + quizLessons.length;
+            const totalProgress = (totalCompleted / totalItems) * 100;
+            document.getElementById('totalProgress').style.width = `${totalProgress}%`;
+            document.getElementById('totalProgressText').textContent = 
+                `${Math.round(totalProgress)}%`;
+        }
+
+        // Получаем уровень языка
+        const levelResponse = await fetch(`/update-progress/${currentUser}/kazakh`);
+        if (levelResponse.ok) {
+            const levelData = await levelResponse.json();
+            document.getElementById('levelText').textContent = 
+                levelData.language_level || 'Не определен';
+        }
+
+    } catch (error) {
+        console.error('Error updating progress:', error);
+    }
   }
 
-  // Example functions for sidebar actions
   function showResources() {
-    alert('Study Materials coming soon!');
-  }
-
-  function showGrammar() {
-    alert('Grammar section coming soon!');
-  }
-
-  function showVocabulary() {
-    alert('Vocabulary section coming soon!');
+    alert('Resources section coming soon!');
   }
 
   function showNotes() {
     alert('Notes section coming soon!');
   }
 
-  // Initialize with some progress (example)
-  updateProgress(30);
-
-  // Add this function to update progress
-  async function updateProgress() {
-    const currentUser = localStorage.getItem("currentUser");
-    if (!currentUser) return;
-
-    try {
-      const response = await fetch(`/user/progress/${currentUser}/kazakh`);
-      if (response.ok) {
-        const data = await response.json();
-        
-        document.getElementById('languageLevel').textContent = data.level;
-        document.getElementById('videoProgress').textContent = 
-            `${data.videos_completed}/${data.total_videos}`;
-        document.getElementById('quizProgress').textContent = 
-            `${data.quizzes_completed}/${data.total_quizzes}`;
-        document.getElementById('totalProgress').textContent = 
-            `${Math.round(data.percentage)}%`;
-        document.getElementById('progressFill').style.width = 
-            `${data.percentage}%`;
-      }
-    } catch (error) {
-      console.error('Error fetching progress:', error);
-    }
+  function showGrammar() {
+    alert('Грамматика бөлімі жақында қолжетімді болады!');
   }
 
-  // Call updateProgress when page loads
-  document.addEventListener('DOMContentLoaded', updateProgress);
-
-  // Add this function to your video pages
-  async function updateVideoProgress(videoId, completed) {
-    const currentUser = localStorage.getItem("currentUser");
-    if (!currentUser) return;
-
-    try {
-      const response = await fetch('/video/progress', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: currentUser,
-          course: 'russian', // or 'kazakh' depending on the page
-          video_id: videoId,
-          completed: completed
-        })
-      });
-
-      if (response.ok) {
-        updateProgress(); // Update the progress bar
-      }
-    } catch (error) {
-      console.error('Error updating video progress:', error);
-    }
+  function showVocabulary() {
+    alert('Сөздік қор бөлімі жақында қолжетімді болады!');
   }
 </script>
 

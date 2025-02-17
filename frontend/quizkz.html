@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Қазақ тілі курсы - Жаттығулар</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Те же стили, что и в quiz.html */
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .quiz-list {
+            margin-top: 20px;
+        }
+        .quiz-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .completed {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        /* Светлая тема */
+        .light-mode .quiz-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Темная тема */
+        .dark-mode .quiz-item {
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+        }
+        .dark-mode .completed {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <header class="header py-3">
+        <div class="container d-flex justify-content-between">
+            <nav class="nav">
+                <div class="nav-logo" style="padding-right: 20%">
+                    <p>STUDY</p>
+                </div>
+            </nav>
+            <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3">🌙</button>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <button onclick="window.location.href='/test'" 
+                class="btn btn-secondary" 
+                style="position: fixed; top: 80px; left: 20px; z-index: 1000;">
+            <i class="fas fa-arrow-left"></i> Артқа
+        </button>
+
+        <div class="main-content">
+            <div class="quiz-container">
+                <h2>Жаттығулар</h2>
+                <div id="quizList" class="quiz-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultQuizLessons = [
+            {
+                id: 'quiz1',
+                title: 'Негізгі грамматика',
+                description: 'Қазақ тілінің негізгі грамматикасын тексеру.'
+            },
+            {
+                id: 'quiz2',
+                title: 'Зат есім',
+                description: 'Зат есім және олардың түрлерін білу тесті.'
+            },
+            {
+                id: 'quiz3',
+                title: 'Сын есім',
+                description: 'Сын есім және олардың қолданылуын тексеру.'
+            },
+            {
+                id: 'quiz4',
+                title: 'Осы шақ етістіктері',
+                description: 'Осы шақтағы етістіктерді жіктеу тесті.'
+            },
+            {
+                id: 'quiz5',
+                title: 'Өткен шақ етістіктері',
+                description: 'Өткен шақтағы етістіктерді білу тесті.'
+            }
+        ];
+
+        if (!localStorage.getItem('kazakhQuizLessons')) {
+            localStorage.setItem('kazakhQuizLessons', JSON.stringify(defaultQuizLessons));
+        }
+
+        async function displayQuizzes() {
+            const currentUser = localStorage.getItem('currentUser');
+            const quizLessons = JSON.parse(localStorage.getItem('kazakhQuizLessons'));
+            const quizList = document.getElementById('quizList');
+            let completedQuizzes = [];
+
+            if (currentUser) {
+                try {
+                    const response = await fetch(`/quizzes/completed/${currentUser}/kazakh`);
+                    if (response.ok) {
+                        completedQuizzes = await response.json();
+                    }
+                } catch (error) {
+                    console.error('Error fetching completed quizzes:', error);
+                }
+            }
+
+            quizList.innerHTML = '';
+            quizLessons.forEach(quiz => {
+                const isCompleted = completedQuizzes.includes(quiz.id);
+                const quizElement = document.createElement('div');
+                quizElement.className = `quiz-item ${isCompleted ? 'completed' : ''}`;
+                quizElement.innerHTML = `
+                    <h5>${quiz.title}</h5>
+                    <p>${quiz.description}</p>
+                    <button onclick="startQuiz('${quiz.id}')" 
+                            class="btn btn-primary">
+                        ${isCompleted ? 'Қайта өту' : 'Бастау'}
+                    </button>
+                `;
+                quizList.appendChild(quizElement);
+            });
+        }
+
+        function startQuiz(quizId) {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('Тестті бастау үшін жүйеге кіріңіз');
+                window.location.href = '/login';
+                return;
+            }
+            // Здесь будет логика запуска конкретного теста
+            alert('Тест жасалу үстінде...');
+        }
+
+        // Инициализация темы и отображение тестов
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem("theme");
+            const body = document.body;
+            const modeToggleButton = document.getElementById("modeToggle");
+
+            if (savedTheme) {
+                body.classList.remove("light-mode", "dark-mode");
+                body.classList.add(savedTheme);
+                modeToggleButton.textContent = savedTheme === "dark-mode" ? "🌞" : "🌙";
+            }
+
+            modeToggleButton.addEventListener("click", toggleMode);
+            displayQuizzes();
+        });
+
+        function toggleMode() {
+            const body = document.body;
+            const modeToggleButton = document.getElementById("modeToggle");
+            const isLightMode = body.classList.contains("light-mode");
+
+            if (isLightMode) {
+                body.classList.remove("light-mode");
+                body.classList.add("dark-mode");
+                modeToggleButton.textContent = "🌞";
+                localStorage.setItem("theme", "dark-mode");
+            } else {
+                body.classList.remove("dark-mode");
+                body.classList.add("light-mode");
+                modeToggleButton.textContent = "🌙";
+                localStorage.setItem("theme", "light-mode");
+            }
+        }
+    </script>
+</body>
+</html> 

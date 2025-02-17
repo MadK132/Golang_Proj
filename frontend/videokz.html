@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Lesson</title>
+    <title>Видеосабақтар</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
     <style>
@@ -557,7 +557,7 @@
                         </div>
                         <p class="mt-2" id="progressText">0/10 видео завершено</p>
                     </div>
-                    <h6 class="sidebar-heading">Видеоуроки</h6>
+                    <h6 class="sidebar-heading">Видеосабақтар</h6>
                     <ul class="sidebar-menu">
                         <li>
                             <a href="#video1" class="video-link">
@@ -627,7 +627,7 @@
             <!-- Main content -->
             <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <div class="video-container">
-                    <h2>Алфавит и произношение</h2>
+                    <h2>Видеосабақтар</h2>
                     <div class="video-wrapper">
                         <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
                                 frameborder="0" 
@@ -648,22 +648,22 @@
     <div id="addVideoModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Добавить новое видео</h2>
+            <h3>Жаңа видео қосу</h3>
             <form id="addVideoForm" onsubmit="addNewVideo(event)">
                 <div class="form-group">
-                    <label for="videoTitle">Название видео:</label>
+                    <label for="videoTitle">Атауы:</label>
                     <input type="text" id="videoTitle" required>
                 </div>
                 <div class="form-group">
-                    <label for="videoDescription">Описание:</label>
+                    <label for="videoDescription">Сипаттама:</label>
                     <textarea id="videoDescription" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="videoUrl">URL видео:</label>
+                    <label for="videoUrl">YouTube сілтемесі:</label>
                     <input type="text" id="videoUrl" required 
                            placeholder="Введите ID видео или полную ссылку на YouTube">
                 </div>
-                <button type="submit" class="btn btn-primary">Добавить видео</button>
+                <button type="submit" class="btn btn-primary">Қосу</button>
             </form>
         </div>
     </div>
@@ -672,22 +672,22 @@
     <div id="editVideoModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2>Редактировать видео</h2>
+            <h3>Видеоны өңдеу</h3>
             <form id="editVideoForm" onsubmit="updateVideo(event)">
                 <input type="hidden" id="editVideoId">
                 <div class="form-group">
-                    <label for="editVideoTitle">Название видео:</label>
+                    <label for="editVideoTitle">Атауы:</label>
                     <input type="text" id="editVideoTitle" required>
                 </div>
                 <div class="form-group">
-                    <label for="editVideoDescription">Описание:</label>
+                    <label for="editVideoDescription">Сипаттама:</label>
                     <textarea id="editVideoDescription" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="editVideoUrl">URL видео:</label>
+                    <label for="editVideoUrl">YouTube сілтемесі:</label>
                     <input type="text" id="editVideoUrl" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <button type="submit" class="btn btn-primary">Сақтау</button>
             </form>
         </div>
     </div>
@@ -882,7 +882,7 @@
 
             try {
                 console.log('Checking completion for video:', videoId);
-                const response = await fetch(`/videos/completed/${currentUser}/russian`);
+                const response = await fetch(`/videos/completed/${currentUser}/kazakh`);
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch completed videos');
@@ -986,7 +986,7 @@
                 console.log('Fetching video progress...');
                 
                 // Получаем все завершенные видео
-                const completedVideosResponse = await fetch(`/videos/completed/${currentUser}/russian`);
+                const completedVideosResponse = await fetch(`/videos/completed/${currentUser}/kazakh`);
                 if (!completedVideosResponse.ok) {
                     throw new Error('Failed to fetch completed videos');
                 }
@@ -1092,7 +1092,7 @@
                     },
                     body: JSON.stringify({
                         user_id: currentUser,
-                        course: 'russian',
+                        course: 'kazakh',
                         video_id: videoId,
                         completed: true
                     })
@@ -1354,7 +1354,7 @@
         }
 
         function deleteVideo(videoId) {
-            if (!confirm('Вы уверены, что хотите удалить это видео?')) return;
+            if (!confirm('Бұл видеоны жойғыңыз келетініне сенімдісіз бе?')) return;
 
             const videoIndex = videoLessons.findIndex(v => v.id === videoId);
             if (videoIndex === -1) return;

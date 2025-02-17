@@ -10,7 +10,12 @@
     .wrapper {
       display: flex;
       width: 100%;
+    }
+
+    body {
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     .sidebar {
@@ -29,6 +34,7 @@
       width: calc(100% - 250px);
       padding: 20px;
       padding-top: 80px; /* Space for header */
+      flex: 1;
     }
 
     .sidebar-menu {
@@ -59,21 +65,6 @@
       margin-bottom: 20px;
     }
 
-    .progress-bar {
-      width: 100%;
-      height: 20px;
-      background: #e0e0e0;
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 10px 0;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: #4CAF50;
-      transition: width 0.3s ease;
-    }
-
     .progress-details {
       font-size: 14px;
     }
@@ -88,6 +79,79 @@
       font-weight: bold;
       padding: 5px 10px;
       border-radius: 4px;
+    }
+
+    .progress-bar {
+      background-color: #f0f0f0;
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background-color: #28a745;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .card-title {
+      color: #007bff; /* синий для светлой темы */
+      margin-bottom: 1rem;
+    }
+
+    /* Цвет заголовков карточек в темной теме */
+    .dark-mode .card-title {
+      color: #00d084; /* мятно-зеленый для темной темы */
+    }
+
+    .list-unstyled li {
+      margin-bottom: 0.8rem;
+      color: #666;
+    }
+
+    /* Цвет текста списков в темной теме */
+    .dark-mode .list-unstyled li {
+      color: #b0b0b0;
+    }
+
+    .lead {
+      color: #666;
+      margin-bottom: 2rem;
+    }
+
+    .footer {
+      margin-top: auto;
+      background-color: #000000;
+      color: white;
+      padding: 20px 0;
+    }
+
+    .card-img-top {
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -115,8 +179,8 @@
         </div>
       </div>
     </nav>
-    <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3" onclick="toggleMode()">🌙</button>
-    <button class="btn" id="logoutBtn" style="display: flex;" onclick="logout()">Log Out</button>
+    <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3">🌙</button>
+    <button class="btn" id="logoutBtn" style="display: none;" onclick="logout()">Log Out</button>
   </div>
 </header>
 
@@ -126,14 +190,14 @@
     <div class="progress-section">
       <h6>Прогресс курса: <span id="totalProgressText">0%</span></h6>
       <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-fill" id="totalProgress" style="width: 0%"></div>
       </div>
       <div class="progress-details">
-        <div id="progressText">
-          <p>Видео: ${videoData.VideosDone}/${videoData.TotalVideos}</p>
-          <p>Тесты: ${completedTests}/${totalTests}</p>
+        <div>
+          <p>Видео: <span id="videoProgressText">0/0 видео завершено</span></p>
+          <p>Тесты: <span id="quizProgressText">0/0 тестов завершено</span></p>
+          <p>Уровень языка: <span id="levelText">Не определен</span></p>
         </div>
-        <p style="font-weight: bold;" id="levelText">Ваш уровень: Не определен</p>
       </div>
     </div>
     <ul class="sidebar-menu">
@@ -158,16 +222,94 @@
   <!-- Main Content -->
   <div class="main-content">
     <div class="container">
-      <h1>Курс русского языка</h1>
-      <p>Добро пожаловать на курс русского языка! Здесь вы найдете все необходимые материалы для изучения.</p>
-      
-      <!-- Your existing content here -->
+      <h1 style="text-align: center">Курс русского языка</h1>
+
+      <div class="row mt-4">
+        <!-- Карточка о грамматике -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="/static/Грамматика .jpg" class="card-img-top" alt="Грамматика">
+            <div class="card-body">
+              <h5 class="card-title">Грамматика русского языка</h5>
+              <p class="card-text">Изучите основы русской грамматики: падежи, времена глаголов, род существительных и многое другое. Наши уроки помогут вам освоить сложную, но логичную систему русского языка.</p>
+              <ul class="list-unstyled">
+                <li>✓ 6 падежей</li>
+                <li>✓ 3 времени глаголов</li>
+                <li>✓ Род существительных</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Карточка о произношении -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="/static/Произношение .jpg" class="card-img-top" alt="Произношение">
+            <div class="card-body">
+              <h5 class="card-title">Произношение</h5>
+              <p class="card-text">Освойте правильное произношение русских звуков и слов. Научитесь говорить чисто и понятно, используя видеоуроки с носителями языка.</p>
+              <ul class="list-unstyled">
+                <li>✓ 33 буквы алфавита</li>
+                <li>✓ Ударения в словах</li>
+                <li>✓ Интонация в предложениях</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Карточка о словарном запасе -->
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="/static/Словарный запас.jpg" class="card-img-top" alt="Словарный запас">
+            <div class="card-body">
+              <h5 class="card-title">Словарный запас</h5>
+              <p class="card-text">Расширьте свой словарный запас с помощью наших тематических уроков. От базовых слов до сложных выражений - мы поможем вам освоить богатство русского языка.</p>
+              <ul class="list-unstyled">
+                <li>✓ Базовая лексика</li>
+                <li>✓ Идиомы и фразеологизмы</li>
+                <li>✓ Разговорные выражения</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <!-- Карточка о практике -->
+        <div class="col-md-12 mb-4">
+          <div class="card h-100">
+            <div class="card-body d-flex">
+              <div class="col-md-4">
+                <img src="/static/Практика.jpg" class="img-fluid rounded" alt="Практика">
+              </div>
+              <div class="col-md-8">
+                <h5 class="card-title">Практика языка</h5>
+                <p class="card-text">Регулярно практикуйте русский язык с помощью наших интерактивных упражнений и тестов.</p>
+                <div class="row">
+                  <div class="col-md-6">
+                    <ul class="list-unstyled">
+                      <li>✓ Интерактивные упражнения</li>
+                      <li>✓ Тесты по грамматике</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <ul class="list-unstyled">
+                      <li>✓ Тесты на словарный запас</li>
+                      <li>✓ Тест на знание языка</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<footer class="footer text-center py-3" style="position: relative;">
-  <p>SE-2304. All Rights Reserved.</p>
+<footer class="footer text-center">
+  <p class="m-0">SE-2304. All Rights Reserved.</p>
 </footer>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -175,136 +317,29 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-  function toggleMode() {
-    const body = document.body;
-    const modeToggleButton = document.getElementById("modeToggle");
-    const isLightMode = body.classList.contains("light-mode");
-
-    if (isLightMode) {
-      body.classList.remove("light-mode");
-      body.classList.add("dark-mode");
-      modeToggleButton.textContent = "🌞";
-      localStorage.setItem("theme", "dark-mode");
-    } else {
-      body.classList.remove("dark-mode");
-      body.classList.add("light-mode");
-      modeToggleButton.textContent = "🌙";
-      localStorage.setItem("theme", "light-mode");
-    }
-  }
-
-  window.addEventListener("load", function() {
-    const savedTheme = localStorage.getItem("theme");
-    const body = document.body;
-    const containerDiv = document.getElementById("containerDiv");
-    const modeToggleButton = document.getElementById("modeToggle");
-
-    if (savedTheme) {
-      body.classList.remove("light-mode", "dark-mode");
-      body.classList.add(savedTheme);
-      containerDiv.classList.remove("light-mode", "dark-mode");
-      containerDiv.classList.add(savedTheme);
-
-      if (savedTheme === "dark-mode") {
-        modeToggleButton.textContent = "🌞";
-      } else {
-        modeToggleButton.textContent = "🌙";
+  // Инициализируем массивы с данными по умолчанию
+  const defaultVideoLessons = [
+      {
+          id: 'video1',
+          title: 'Введение в русский язык',
+          description: 'Базовые понятия русского языка, знакомство с алфавитом и произношением.',
+          videoUrl: 'https://www.youtube.com/embed/G0LJBUo0LHk'
+      },
+      {
+          id: 'video2',
+          title: 'Алфавит и произношение',
+          description: 'Изучение русского алфавита и правил произношения.',
+          videoUrl: 'https://www.youtube.com/embed/XQHUZf8g3Uw'
+      },
+      {
+          id: 'video3',
+          title: 'Базовая грамматика',
+          description: 'Основы грамматики русского языка.',
+          videoUrl: 'https://www.youtube.com/embed/rg-v-QHz4Xw'
       }
-    } else {
-      body.classList.add("light-mode");
-      containerDiv.classList.add("light-mode");
-      modeToggleButton.textContent = "🌙";
-    }
-  });
+  ];
 
-  document.getElementById("modeToggle").addEventListener("click", toggleMode);
-  window.onload = function() {
-    const currentUser = localStorage.getItem("currentUser");
-
-    if (currentUser) {
-      document.getElementById("Login").style.display = "none";
-      document.getElementById("userGreeting").style.display = "inline";
-      document.getElementById("userGreeting").textContent = `${currentUser}`;
-      document.getElementById("logoutBtn").style.display = "inline";
-    } else {
-      document.getElementById("Login").style.display = "inline";
-      document.getElementById("userGreeting").style.display = "none";
-      document.getElementById("logoutBtn").style.display = "none";
-    }
-  }
-
-  function logout() {
-    localStorage.removeItem("currentUser");
-    document.getElementById("Login").style.display = "inline";
-    document.getElementById("userGreeting").style.display = "none";
-    document.getElementById("logoutBtn").style.display = "none";
-  }
-
-  async function updateProgress() {
-    const currentUser = localStorage.getItem('currentUser');
-    if (!currentUser) return;
-
-    try {
-        const videoResponse = await fetch(`/course/progress/${currentUser}/russian`);
-        const videoData = await videoResponse.json();
-        
-        // Подсчитываем количество завершенных тестов
-        let completedTests = 0;
-        const totalTests = quizLessons.length;
-        
-        for (const quiz of quizLessons) {
-            const response = await fetch(`/quiz/progress/${currentUser}/${quiz.id}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.completed) {
-                    completedTests++;
-                }
-            }
-        }
-
-        const levelResponse = await fetch(`/user/progress/${currentUser}`);
-        const levelData = await levelResponse.json();
-
-        const totalItems = videoData.TotalVideos + totalTests;
-        const completedItems = videoData.VideosDone + completedTests;
-        const totalProgress = (completedItems / totalItems) * 100;
-        
-        document.querySelector('.progress-fill').style.width = `${totalProgress}%`;
-        document.getElementById('totalProgressText').textContent = `${Math.round(totalProgress)}%`;
-
-        document.getElementById('progressText').innerHTML = `
-            <p>Видео: ${videoData.VideosDone}/${videoData.TotalVideos}</p>
-            <p>Тесты: ${completedTests}/${totalTests}</p>
-        `;
-
-        document.getElementById('levelText').textContent =
-            `Ваш уровень: ${levelData.level || 'Не определен'}`;
-
-    } catch (error) {
-        console.error('Error updating progress:', error);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', updateProgress);
-
-  function showResources() {
-    alert('Resources section coming soon!');
-  }
-
-  function showNotes() {
-    alert('Notes section coming soon!');
-  }
-
-  function showGrammar() {
-    alert('Раздел грамматики скоро будет доступен!');
-  }
-
-  function showVocabulary() {
-    alert('Раздел словарного запаса скоро будет доступен!');
-  }
-
-  // Добавляем массив с данными всех тестов
-  const quizLessons = [
+  const defaultQuizLessons = [
       {
           id: 'quiz1',
           title: 'Базовая грамматика',
@@ -331,6 +366,163 @@
           description: 'Проверка знаний глаголов в прошедшем времени.'
       }
   ];
+
+  // Сохраняем начальные данные в localStorage при первой загрузке
+  if (!localStorage.getItem('videoLessons')) {
+      localStorage.setItem('videoLessons', JSON.stringify(defaultVideoLessons));
+  }
+  if (!localStorage.getItem('quizLessons')) {
+      localStorage.setItem('quizLessons', JSON.stringify(defaultQuizLessons));
+  }
+
+  // Объединим все обработчики в одну функцию DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem("theme");
+    const body = document.body;
+    const sidebar = document.querySelector(".sidebar");
+    const modeToggleButton = document.getElementById("modeToggle");
+    const progressFill = document.querySelector(".progress-fill");
+
+    if (savedTheme) {
+        body.classList.remove("light-mode", "dark-mode");
+        body.classList.add(savedTheme);
+        sidebar.classList.remove("light-mode", "dark-mode");
+        sidebar.classList.add(savedTheme);
+
+        if (savedTheme === "dark-mode") {
+            modeToggleButton.textContent = "🌞";
+            progressFill.style.backgroundColor = "#4CAF50"; // зеленый для темной темы
+        } else {
+            modeToggleButton.textContent = "🌙";
+            progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы
+        }
+    } else {
+        body.classList.add("light-mode");
+        sidebar.classList.add("light-mode");
+        modeToggleButton.textContent = "🌙";
+        progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы по умолчанию
+    }
+
+    // Добавляем обработчик для кнопки переключения темы
+    modeToggleButton.addEventListener("click", toggleMode);
+
+    // Проверка авторизации
+    const currentUser = localStorage.getItem("currentUser");
+    if (currentUser) {
+      document.getElementById("Login").style.display = "none";
+      document.getElementById("userGreeting").style.display = "inline";
+      document.getElementById("userGreeting").textContent = `${currentUser}`;
+      document.getElementById("logoutBtn").style.display = "inline";
+    } else {
+      document.getElementById("Login").style.display = "inline";
+      document.getElementById("userGreeting").style.display = "none";
+      document.getElementById("logoutBtn").style.display = "none";
+    }
+
+    // Обновляем прогресс
+    updateProgress();
+  });
+
+  // Функция toggleMode остается без изменений
+  function toggleMode() {
+    const body = document.body;
+    const modeToggleButton = document.getElementById("modeToggle");
+    const sidebar = document.querySelector(".sidebar");
+    const progressFill = document.querySelector(".progress-fill");
+    const isLightMode = body.classList.contains("light-mode");
+
+    if (isLightMode) {
+        // Переключаем на темную тему
+        body.classList.remove("light-mode");
+        body.classList.add("dark-mode");
+        sidebar.classList.remove("light-mode");
+        sidebar.classList.add("dark-mode");
+        progressFill.style.backgroundColor = "#4CAF50"; // зеленый для темной темы
+        modeToggleButton.textContent = "🌞";
+        localStorage.setItem("theme", "dark-mode");
+    } else {
+        // Переключаем на светлую тему
+        body.classList.remove("dark-mode");
+        body.classList.add("light-mode");
+        sidebar.classList.remove("dark-mode");
+        sidebar.classList.add("light-mode");
+        progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы
+        modeToggleButton.textContent = "🌙";
+        localStorage.setItem("theme", "light-mode");
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem("currentUser");
+    window.location.reload();
+  }
+
+  // Функция для обновления прогресса
+  async function updateProgress() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) return;
+
+    // Получаем актуальные данные из localStorage
+    const videoLessons = JSON.parse(localStorage.getItem('videoLessons'));
+    const quizLessons = JSON.parse(localStorage.getItem('quizLessons'));
+    let videoProgress = 0;
+
+    try {
+        // Получаем прогресс по видео из базы данных
+        const videoResponse = await fetch(`videos/completed/${currentUser}/russian`);
+        if (videoResponse.ok) {
+            const videoData = await videoResponse.json();
+            const completedCount = videoData.length || 0;
+            document.getElementById('videoProgressText').textContent = 
+                `${completedCount}/${videoLessons.length} видео завершено`;
+            videoProgress = completedCount;
+        }
+
+        // Получаем прогресс по тестам
+        const quizResponse = await fetch(`/quizzes/completed/${currentUser}/russian`);
+        if (quizResponse.ok) {
+            const quizData = await quizResponse.json();
+            const completedQuizzes = quizData.length || 0;
+            document.getElementById('quizProgressText').textContent = 
+                `${completedQuizzes}/${quizLessons.length} тестов завершено`;
+
+            // Обновляем общий прогресс на основе завершенных тестов и видео
+            const totalCompleted = videoProgress + completedQuizzes;
+            const totalItems = videoLessons.length + quizLessons.length;
+            const totalProgress = (totalCompleted / totalItems) * 100;
+            document.getElementById('totalProgress').style.width = `${totalProgress}%`;
+            document.getElementById('totalProgressText').textContent = 
+                `${Math.round(totalProgress)}%`;
+        }
+
+        // Получаем уровень языка
+        const levelResponse = await fetch(`/update-progress/${currentUser}/russian`);
+        if (levelResponse.ok) {
+            const levelData = await levelResponse.json();
+            document.getElementById('levelText').textContent = 
+                levelData.language_level || 'Не определен';
+        }
+
+    } catch (error) {
+        console.error('Error updating progress:', error);
+    }
+  }
+
+  function showResources() {
+    alert('Resources section coming soon!');
+  }
+
+  function showNotes() {
+    alert('Notes section coming soon!');
+  }
+
+  function showGrammar() {
+    alert('Раздел грамматики скоро будет доступен!');
+  }
+
+  function showVocabulary() {
+    alert('Раздел словарного запаса скоро будет доступен!');
+  }
 </script>
 
 </body>

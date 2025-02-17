@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"net/http"
 	"strconv"
@@ -9,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	_ "github.com/golang-jwt/jwt/v5"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,11 +25,11 @@ var (
 )
 
 type User struct {
-	ID       string         `bson:"_id" json:"id"`
-	Username string         `json:"username"`
-	Email    string         `json:"email"`
-	Password string         `json:"password"`
-	Progress []UserProgress `json:"progress,omitempty"`
+	ID       string `bson:"_id" json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	IsAdmin  bool   `json:"is_admin" default:"false"`
 }
 
 type Lesson struct {
@@ -38,13 +39,13 @@ type Lesson struct {
 }
 
 type Progress struct {
-	ID          string  `bson:"_id" json:"id"`
-	UserID      string  `bson:"user_id" json:"user_id"`
-	Course      string  `bson:"course" json:"course"`
-	VideosDone  int     `bson:"videos_done" json:"videos_done"`
-	QuizzesDone int     `bson:"quizzes_done" json:"quizzes_done"`
-	LevelTest   string  `bson:"level_test" json:"level_test"`
-	Percentage  float64 `bson:"percentage" json:"percentage"`
+	ID            string  `bson:"_id" json:"id"`
+	UserID        string  `bson:"user_id" json:"user_id"`
+	Course        string  `bson:"course" json:"course"`
+	VideosDone    int     `bson:"videos_done" json:"videos_done"`
+	QuizzesDone   int     `bson:"quizzes_done" json:"quizzes_done"`
+	Percentage    float64 `bson:"percentage" json:"percentage"`
+	LanguageLevel string  `bson:"language_level" json:"language_level"`
 }
 
 type Claims struct {
@@ -52,35 +53,34 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// Login request structure
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-// Add these new structures
 type QuizProgress struct {
-	ID        string  `bson:"_id" json:"id"`
-	UserID    string  `bson:"user_id" json:"user_id"`
-	Course    string  `bson:"course" json:"course"`
-	Score     float64 `bson:"score" json:"score"`
-	Level     string  `bson:"level" json:"level"`
-	Timestamp string  `bson:"timestamp" json:"timestamp"`
+	ID             string  `bson:"_id" json:"id"`
+	UserID         string  `bson:"user_id" json:"user_id"`
+	Course         string  `bson:"course" json:"course"`
+	QuizID         string  `bson:"quiz_id" json:"quiz_id"`
+	Score          float64 `bson:"score" json:"score"`
+	CorrectAnswers int     `bson:"correct_answers" json:"correct_answers"`
+	TotalQuestions int     `bson:"total_questions" json:"total_questions"`
+	UserAnswers    []int   `bson:"user_answers" json:"user_answers"`
+	Completed      bool    `bson:"completed" json:"completed"`
+	Timestamp      string  `bson:"timestamp" json:"timestamp"`
 }
 
-// Add new struct for user progress
 type UserProgress struct {
-	CourseType string  `bson:"course_type" json:"course_type"` // "russian" or "kazakh"
-	Level      string  `bson:"level" json:"level"`             // A1, A2, B1, B2, C1
+	CourseType string  `bson:"course_type" json:"course_type"`
 	Score      float64 `bson:"score" json:"score"`
-	LastTest   string  `bson:"last_test" json:"last_test"` // timestamp
+	LastTest   string  `bson:"last_test" json:"last_test"`
 }
 
-// Add these new structs
 type VideoProgress struct {
 	ID        string `bson:"_id" json:"id"`
 	UserID    string `bson:"user_id" json:"user_id"`
-	Course    string `bson:"course" json:"course"` // "russian" or "kazakh"
+	Course    string `bson:"course" json:"course"`
 	VideoID   string `bson:"video_id" json:"video_id"`
 	Completed bool   `bson:"completed" json:"completed"`
 	Timestamp string `bson:"timestamp" json:"timestamp"`
@@ -103,7 +103,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Check the connection
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -113,13 +112,10 @@ func main() {
 
 	r := gin.Default()
 
-	// Раздача CSS, JS и изображений
 	r.Static("/static", "./frontend")
 
-	// Подключаем все HTML-файлы
 	r.LoadHTMLGlob("frontend/*.html")
 
-	// Определяем маршруты для всех страниц
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
@@ -164,6 +160,14 @@ func main() {
 		c.HTML(http.StatusOK, "kazakh_quiz.html", nil)
 	})
 
+	r.GET("/videokz", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "videokz.html", nil)
+	})
+
+	r.GET("/quizkz", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "quizkz.html", nil)
+	})
+
 	r.POST("/register", register)
 	r.POST("/login", login)
 	r.GET("/lessons", getLessons)
@@ -174,25 +178,29 @@ func main() {
 	r.DELETE("/users/:username", deleteUser)
 	r.PUT("/users/:username", updateUser)
 
-	// Quiz routes
 	r.POST("/quiz/submit", submitQuizResult)
 	r.GET("/user/progress/:userId", getUserProgress)
 
-	// Add this before r.Run(":8080")
 	r.NoRoute(func(c *gin.Context) {
 		c.HTML(http.StatusNotFound, "404.html", nil)
-		// Or redirect to home page
-		// c.Redirect(http.StatusFound, "/")
+
 	})
 
-	// Add this new route in main()
 	r.DELETE("/quiz/delete/:userId/:course", deleteQuizResults)
 
-	// Add these new routes in main()
 	r.POST("/video/progress", updateVideoProgress)
 	r.GET("/course/progress/:userId/:course", getCourseProgress)
 
-	r.Run(":8080")
+	r.GET("/quiz/progress/:userId/:quizId", getQuizProgress)
+	r.GET("/quizzes/completed/:userId/:course", getCompletedQuizzes)
+
+	r.GET("/videos/completed/:userId/:course", getCompletedVideos)
+
+	r.GET("/update-progress/:userId/:course", updateUserProgress)
+
+	r.POST("/level-test/submit", submitLevelTest)
+
+	r.Run(":8000")
 }
 
 func nextID(collectionName string) string {
@@ -233,13 +241,18 @@ func register(c *gin.Context) {
 	}
 
 	user.ID = nextID("users")
+	user.IsAdmin = false
+
 	_, err = collection.InsertOne(context.TODO(), user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Registration successful"})
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Registration successful",
+		"is_admin": user.IsAdmin,
+	})
 }
 
 func login(c *gin.Context) {
@@ -410,11 +423,14 @@ func updateUser(c *gin.Context) {
 
 func submitQuizResult(c *gin.Context) {
 	var submission struct {
-		UserID   string  `json:"user_id"`
-		Course   string  `json:"course"`
-		Score    float64 `json:"score"`
-		Level    string  `json:"level"`
-		Complete bool    `json:"complete"`
+		UserID         string  `json:"user_id"`
+		Course         string  `json:"course"`
+		QuizID         string  `json:"quiz_id"`
+		Score          float64 `json:"score"`
+		CorrectAnswers int     `json:"correct_answers"`
+		TotalQuestions int     `json:"total_questions"`
+		UserAnswers    []int   `json:"user_answers"`
+		Completed      bool    `json:"completed"`
 	}
 
 	if err := c.ShouldBindJSON(&submission); err != nil {
@@ -422,81 +438,66 @@ func submitQuizResult(c *gin.Context) {
 		return
 	}
 
-	// First, delete previous results
 	quizCollection := client.Database("learning").Collection("quiz_progress")
-	_, err := quizCollection.DeleteMany(
-		context.TODO(),
-		bson.M{
-			"user_id": submission.UserID,
-			"course":  submission.Course,
-		},
-	)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete previous results"})
+
+	// Проверяем, существует ли уже результат для этого теста
+	var existingProgress QuizProgress
+	err := quizCollection.FindOne(context.TODO(), bson.M{
+		"user_id": submission.UserID,
+		"quiz_id": submission.QuizID,
+		"course":  submission.Course,
+	}).Decode(&existingProgress)
+
+	if err != nil && err != mongo.ErrNoDocuments {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check existing progress"})
 		return
 	}
 
-	// Update user's progress by removing old results
-	collection := client.Database("learning").Collection("users")
-	_, err = collection.UpdateOne(
-		context.TODO(),
-		bson.M{"username": submission.UserID},
-		bson.M{
-			"$pull": bson.M{
-				"progress": bson.M{
-					"course_type": submission.Course,
+	quizProgress := QuizProgress{
+		UserID:         submission.UserID,
+		Course:         submission.Course,
+		QuizID:         submission.QuizID,
+		Score:          submission.Score,
+		CorrectAnswers: submission.CorrectAnswers,
+		TotalQuestions: submission.TotalQuestions,
+		UserAnswers:    submission.UserAnswers,
+		Completed:      true,
+		Timestamp:      time.Now().Format(time.RFC3339),
+	}
+
+	if err == mongo.ErrNoDocuments {
+		// Если результата нет, создаем новый документ
+		quizProgress.ID = nextID("quiz_progress")
+		_, err = quizCollection.InsertOne(context.TODO(), quizProgress)
+	} else {
+		// Если результат существует, обновляем его
+		_, err = quizCollection.UpdateOne(
+			context.TODO(),
+			bson.M{
+				"user_id": submission.UserID,
+				"quiz_id": submission.QuizID,
+				"course":  submission.Course,
+			},
+			bson.M{
+				"$set": bson.M{
+					"score":           submission.Score,
+					"correct_answers": submission.CorrectAnswers,
+					"user_answers":    submission.UserAnswers,
+					"completed":       true,
+					"timestamp":       time.Now().Format(time.RFC3339),
 				},
 			},
-		},
-	)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user progress"})
-		return
+		)
 	}
 
-	// Now add new progress
-	timestamp := time.Now().Format(time.RFC3339)
-	progress := UserProgress{
-		CourseType: submission.Course,
-		Level:      submission.Level,
-		Score:      submission.Score,
-		LastTest:   timestamp,
-	}
-
-	_, err = collection.UpdateOne(
-		context.TODO(),
-		bson.M{"username": submission.UserID},
-		bson.M{
-			"$push": bson.M{
-				"progress": progress,
-			},
-		},
-	)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update progress"})
-		return
-	}
-
-	// Save new quiz progress
-	quizProgress := QuizProgress{
-		ID:        nextID("quiz_progress"),
-		UserID:    submission.UserID,
-		Course:    submission.Course,
-		Score:     submission.Score,
-		Level:     submission.Level,
-		Timestamp: timestamp,
-	}
-
-	_, err = quizCollection.InsertOne(context.TODO(), quizProgress)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save quiz progress"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Progress saved successfully",
-		"level":   submission.Level,
-		"score":   submission.Score,
+		"status":  "success",
+		"message": "Quiz progress saved successfully",
 	})
 }
 
@@ -555,79 +556,127 @@ func deleteQuizResults(c *gin.Context) {
 
 // Add new function to update video progress
 func updateVideoProgress(c *gin.Context) {
-	var progress VideoProgress
-	if err := c.ShouldBindJSON(&progress); err != nil {
+	var submission struct {
+		UserID    string `json:"user_id"`
+		Course    string `json:"course"`
+		VideoID   string `json:"video_id"`
+		Completed bool   `json:"completed"`
+	}
+
+	if err := c.ShouldBindJSON(&submission); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
 		return
 	}
 
-	progress.ID = nextID("video_progress")
-	progress.Timestamp = time.Now().Format(time.RFC3339)
-
 	collection := client.Database("learning").Collection("video_progress")
-	_, err := collection.InsertOne(context.TODO(), progress)
+
+	// Проверяем, существует ли уже прогресс для этого видео
+	var existingProgress VideoProgress
+	err := collection.FindOne(context.TODO(), bson.M{
+		"user_id":  submission.UserID,
+		"video_id": submission.VideoID,
+		"course":   submission.Course,
+	}).Decode(&existingProgress)
+
+	videoProgress := VideoProgress{
+		UserID:    submission.UserID,
+		Course:    submission.Course,
+		VideoID:   submission.VideoID,
+		Completed: true,
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
+
+	if err == mongo.ErrNoDocuments {
+		// Если записи нет, создаем новую
+		videoProgress.ID = nextID("video_progress")
+		_, err = collection.InsertOne(context.TODO(), videoProgress)
+	} else {
+		// Если запись существует, обновляем её
+		_, err = collection.UpdateOne(
+			context.TODO(),
+			bson.M{
+				"user_id":  submission.UserID,
+				"video_id": submission.VideoID,
+				"course":   submission.Course,
+			},
+			bson.M{
+				"$set": bson.M{
+					"completed": true,
+					"timestamp": time.Now().Format(time.RFC3339),
+				},
+			},
+		)
+	}
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save video progress"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Video progress saved"})
+	// Получаем обновленный прогресс курса
+	progress, err := calculateProgress(submission.UserID, submission.Course)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate progress"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":   "success",
+		"message":  "Video progress saved",
+		"progress": progress,
+	})
 }
 
-// Add function to get overall course progress
 func getCourseProgress(c *gin.Context) {
 	userID := c.Param("userId")
 	course := c.Param("course")
 
-	// Get quiz progress
+	// Подсчитываем количество завершенных тестов
 	quizCollection := client.Database("learning").Collection("quiz_progress")
-	quizCount, err := quizCollection.CountDocuments(context.TODO(), bson.M{
-		"user_id": userID,
-		"course":  course,
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get quiz progress"})
-		return
-	}
-
-	// Get video progress
-	videoCollection := client.Database("learning").Collection("video_progress")
-	videoCount, err := videoCollection.CountDocuments(context.TODO(), bson.M{
+	completedQuizzes, err := quizCollection.CountDocuments(context.TODO(), bson.M{
 		"user_id":   userID,
 		"course":    course,
 		"completed": true,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get video progress"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count completed quizzes"})
 		return
 	}
 
-	// Calculate total progress
-	totalQuiz := 5    // Update this based on your total number of quizzes
-	totalVideos := 10 // Update this based on your total number of videos
-	totalItems := totalQuiz + totalVideos
-	completedItems := int(quizCount + videoCount)
-	percentage := (float64(completedItems) / float64(totalItems)) * 100
+	// Подсчитываем количество завершенных видео
+	videoCollection := client.Database("learning").Collection("video_progress")
+	completedVideos, err := videoCollection.CountDocuments(context.TODO(), bson.M{
+		"user_id":   userID,
+		"course":    course,
+		"completed": true,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count completed videos"})
+		return
+	}
 
+	// Создаем объект с прогрессом
 	progress := CourseProgress{
 		UserID:      userID,
 		Course:      course,
-		QuizDone:    int(quizCount),
-		VideosDone:  int(videoCount),
-		TotalQuiz:   totalQuiz,
-		TotalVideos: totalVideos,
-		Percentage:  percentage,
+		QuizDone:    int(completedQuizzes),
+		VideosDone:  int(completedVideos),
+		TotalQuiz:   5, // Это значение будет браться из фронтенда
+		TotalVideos: 10,
 	}
+
+	// Вычисляем общий процент
+	totalItems := progress.TotalQuiz + progress.TotalVideos
+	completedItems := progress.QuizDone + progress.VideosDone
+	progress.Percentage = (float64(completedItems) / float64(totalItems)) * 100
 
 	c.JSON(http.StatusOK, progress)
 }
 
-// Add this function to initialize collections
 func initDatabase() {
 	ctx := context.TODO()
 	db := client.Database("learning")
 
-	// Define indexes for collections
 	collections := map[string][]mongo.IndexModel{
 		"users": {
 			{
@@ -662,7 +711,6 @@ func initDatabase() {
 		},
 	}
 
-	// Create collections and indexes
 	for collName, indexes := range collections {
 		err := db.CreateCollection(ctx, collName)
 		if err != nil && !strings.Contains(err.Error(), "already exists") {
@@ -678,16 +726,28 @@ func initDatabase() {
 	}
 }
 
-// Update progress calculation function
 func calculateProgress(userID, course string) (Progress, error) {
 	var progress Progress
-	progress.ID = nextID("progress")
-	progress.UserID = userID
-	progress.Course = course
 
-	// Get video progress
+	// Сначала проверяем, существует ли уже запись прогресса
+	collection := client.Database("learning").Collection("progress")
+	err := collection.FindOne(context.TODO(), bson.M{
+		"user_id": userID,
+		"course":  course,
+	}).Decode(&progress)
+
+	if err == mongo.ErrNoDocuments {
+		// Если записи нет, создаем новую с nextID
+		progress.ID = nextID("progress")
+		progress.UserID = userID
+		progress.Course = course
+	} else if err != nil {
+		return progress, err
+	}
+
+	// Получаем количество завершенных видео
 	videoCollection := client.Database("learning").Collection("video_progress")
-	videosCount, err := videoCollection.CountDocuments(context.TODO(), bson.M{
+	completedVideos, err := videoCollection.CountDocuments(context.TODO(), bson.M{
 		"user_id":   userID,
 		"course":    course,
 		"completed": true,
@@ -696,48 +756,42 @@ func calculateProgress(userID, course string) (Progress, error) {
 		return progress, err
 	}
 
-	// Get quiz progress (excluding level test)
+	// Получаем количество завершенных тестов
 	quizCollection := client.Database("learning").Collection("quiz_progress")
-	quizzesCount, err := quizCollection.CountDocuments(context.TODO(), bson.M{
-		"user_id":       userID,
-		"course":        course,
-		"is_level_test": bson.M{"$ne": true},
+	completedQuizzes, err := quizCollection.CountDocuments(context.TODO(), bson.M{
+		"user_id":   userID,
+		"course":    course,
+		"completed": true,
 	})
 	if err != nil {
 		return progress, err
 	}
 
-	// Get level test result
-	var levelTest QuizProgress
-	err = quizCollection.FindOne(context.TODO(), bson.M{
-		"user_id":       userID,
-		"course":        course,
-		"is_level_test": true,
-	}).Decode(&levelTest)
+	// Заполняем поля
+	progress.VideosDone = int(completedVideos)
+	progress.QuizzesDone = int(completedQuizzes)
 
-	if err == nil {
-		progress.LevelTest = levelTest.Level
-	} else if err != mongo.ErrNoDocuments {
-		return progress, err
-	} else {
-		progress.LevelTest = "Not determined"
-	}
-
-	progress.VideosDone = int(videosCount)
-	progress.QuizzesDone = int(quizzesCount)
-
-	// Calculate percentage
+	// Вычисляем процент
 	totalVideos := 10
-	totalQuizzes := 5
-	totalItems := totalVideos + totalQuizzes
+	totalTests := 5
+	totalItems := totalVideos + totalTests
 	completedItems := progress.VideosDone + progress.QuizzesDone
 	progress.Percentage = (float64(completedItems) / float64(totalItems)) * 100
 
-	// Save progress
-	collection := client.Database("learning").Collection("progress")
+	// Обновляем запись в коллекции progress
+	filter := bson.M{
+		"user_id": userID,
+		"course":  course,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"_id":          progress.ID,
+			"videos_done":  progress.VideosDone,
+			"quizzes_done": progress.QuizzesDone,
+			"percentage":   progress.Percentage,
+		},
+	}
 	opts := options.Update().SetUpsert(true)
-	filter := bson.M{"user_id": userID, "course": course}
-	update := bson.M{"$set": progress}
 
 	_, err = collection.UpdateOne(context.TODO(), filter, update, opts)
 	if err != nil {
@@ -745,4 +799,145 @@ func calculateProgress(userID, course string) (Progress, error) {
 	}
 
 	return progress, nil
+}
+
+func getQuizProgress(c *gin.Context) {
+	userID := c.Param("userId")
+	quizID := c.Param("quizId")
+
+	var progress QuizProgress
+	collection := client.Database("learning").Collection("quiz_progress")
+	err := collection.FindOne(context.TODO(), bson.M{
+		"user_id": userID,
+		"quiz_id": quizID,
+	}).Decode(&progress)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			c.JSON(http.StatusNotFound, gin.H{"error": "No progress found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, progress)
+}
+
+// Добавим новую функцию для получения списка завершенных тестов
+func getCompletedQuizzes(c *gin.Context) {
+	userID := c.Param("userId")
+	course := c.Param("course")
+
+	collection := client.Database("learning").Collection("quiz_progress")
+	cursor, err := collection.Find(context.TODO(), bson.M{
+		"user_id":   userID,
+		"course":    course,
+		"completed": true,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+	defer cursor.Close(context.TODO())
+
+	var completedQuizzes []QuizProgress
+	if err = cursor.All(context.TODO(), &completedQuizzes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error parsing results"})
+		return
+	}
+
+	// Извлекаем только ID тестов
+	quizIds := make([]string, 0)
+	for _, quiz := range completedQuizzes {
+		quizIds = append(quizIds, quiz.QuizID)
+	}
+
+	c.JSON(http.StatusOK, quizIds)
+}
+
+// Добавляем новый эндпоинт для проверки завершенности видео
+func getCompletedVideos(c *gin.Context) {
+	userID := c.Param("userId")
+	course := c.Param("course")
+
+	collection := client.Database("learning").Collection("video_progress")
+	cursor, err := collection.Find(context.TODO(), bson.M{
+		"user_id":   userID,
+		"course":    course,
+		"completed": true,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+	defer cursor.Close(context.TODO())
+
+	var completedVideos []VideoProgress
+	if err = cursor.All(context.TODO(), &completedVideos); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error parsing results"})
+		return
+	}
+
+	// Извлекаем только ID видео
+	videoIds := make([]string, 0)
+	for _, video := range completedVideos {
+		videoIds = append(videoIds, video.VideoID)
+	}
+
+	c.JSON(http.StatusOK, videoIds)
+}
+
+func updateUserProgress(c *gin.Context) {
+	userID := c.Param("userId")
+	course := c.Param("course")
+
+	progress, err := calculateProgress(userID, course)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update progress"})
+		return
+	}
+
+	c.JSON(http.StatusOK, progress)
+}
+
+// Новая функция для обработки результатов теста на уровень языка
+func submitLevelTest(c *gin.Context) {
+	var submission struct {
+		UserID string  `json:"user_id"`
+		Course string  `json:"course"`
+		Score  float64 `json:"score"`
+		Level  string  `json:"level"`
+	}
+
+	if err := c.ShouldBindJSON(&submission); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	// Обновляем language_level в коллекции progress
+	collection := client.Database("learning").Collection("progress")
+	filter := bson.M{
+		"user_id": submission.UserID,
+		"course":  submission.Course,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"language_level": submission.Level,
+		},
+	}
+	opts := options.Update().SetUpsert(true)
+
+	_, err := collection.UpdateOne(context.TODO(), filter, update, opts)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update language level"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Language level updated successfully",
+	})
 }

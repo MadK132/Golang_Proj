@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        /* Общие стили */
         .quiz-container {
             max-width: 800px;
             margin: 20px auto;
@@ -17,7 +18,6 @@
             margin-bottom: 20px;
             padding: 15px;
             border-radius: 8px;
-            background-color: #f8f9fa;
         }
         .option {
             padding: 10px;
@@ -27,16 +27,75 @@
             cursor: pointer;
         }
         .option:hover {
-            background-color: #e9ecef;
         }
         .option.selected {
             background-color: #007bff;
             color: white;
         }
+
+        /* Светлая тема */
+        .light-mode .question {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .light-mode .option {
+            background-color: white;
+            color: #333;
+            border-color: #ddd;
+        }
+        .light-mode .option:hover {
+            background-color: #e9ecef;
+        }
+        .light-mode .quiz-container {
+            background-color: white;
+            color: #333;
+        }
+
+        /* Темная тема */
+        .dark-mode .question {
+            background-color: #2d2d2d;
+            color: #fff;
+        }
+        .dark-mode .option {
+            background-color: #363636;
+            color: #fff;
+            border-color: #444;
+        }
+        .dark-mode .option:hover {
+            background-color: #404040;
+        }
+        .dark-mode .quiz-container {
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+        .dark-mode .option.selected {
+            background-color: #4CAF50;
+        }
+        .option-btn {
+            padding: 10px 20px;
+            border: 2px solid #007bff;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option-btn:hover {
+            background: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <!-- Include your header here -->
+    <header class="header py-3">
+        <div class="container d-flex justify-content-between">
+            <nav class="nav">
+                <div class="nav-logo" style="padding-right: 20%">
+                    <p>STUDY</p>
+                </div>
+            </nav>
+            <button id="modeToggle" class="btn btn-light position-relative top-0 right-0 m-3">🌙</button>
+        </div>
+    </header>
 
     <div class="wrapper">
         <button onclick="window.location.href='/general'" 
@@ -47,8 +106,8 @@
         <!-- Include your sidebar here -->
 
         <div class="main-content">
-            <div class="quiz-container">
-                <h2>Тест по русскому языку</h2>
+            <div id="quiz-container" class="quiz-container">
+                <h2>Тест на знание русского языка</h2>
                 <div id="quiz"></div>
                 <button id="submitQuiz" class="btn btn-primary mt-3">Завершить тест</button>
             </div>
@@ -56,52 +115,216 @@
     </div>
 
     <script>
-        const russianQuestions = [
+        const questions = [
             {
-                level: "A1",
-                question: "Выберите правильное приветствие:",
-                options: ["Здравствуйте", "До свидания", "Спасибо", "Извините"],
-                correct: 0
-            },
-            {
-                level: "A2",
-                question: "Выберите правильное окончание: Я живу в Москв_",
-                options: ["а", "е", "у", "ы"],
+                question: "Наша страна богата ...",
+                options: ["нефти", "нефтью", "нефть"],
                 correct: 1
             },
             {
-                level: "B1",
-                question: "Какое слово является синонимом к слову 'красивый'?",
-                options: ["Уродливый", "Прекрасный", "Грустный", "Быстрый"],
+                question: "Артем часто бывает ...",
+                options: ["к своим родителям", "у своих родителей", "в свои родители"],
                 correct: 1
             },
             {
-                level: "B2",
-                question: "Выберите правильную форму причастия: 'читать' - '... книгу человек'",
-                options: ["читающий", "читавший", "прочитанный", "читаемый"],
+                question: "По дороге домой я ... в магазин за хлебом.",
+                options: ["зашла", "пришла", "вошла"],
                 correct: 0
             },
             {
-                level: "C1",
-                question: "Выберите правильное употребление деепричастия:",
-                options: [
-                    "Придя домой, я буду отдыхать",
-                    "Придя домой, меня ждал сюрприз",
-                    "Придя домой, телевизор был включен",
-                    "Придя домой, свет включился"
-                ],
+                question: "Я еще не знаю, ... завтра в университет.",
+                options: ["придет ли моя сестра", "если придет моя сестра"],
                 correct: 0
+            },
+            {
+                question: "В парке мы встретили ...",
+                options: ["хорошим знакомым", "хороших знакомых", "с хорошими знакомыми"],
+                correct: 1
+            },
+            {
+                question: "Мы ... все магазины, но так ничего и не купили.",
+                options: ["перешли", "зашли", "обошли"],
+                correct: 2
+            },
+            {
+                question: "Я скоро вернусь и ... тебе приготовить ужин.",
+                options: ["помогу", "буду помогать", "помогаю"],
+                correct: 0
+            },
+            {
+                question: "У меня есть брат, ... я очень люблю.",
+                options: ["который", "которого", "которому"],
+                correct: 1
+            },
+            {
+                question: "Мы говорили о книге, ... итальянским художником.",
+                options: ["написанная", "написанной", "написанную"],
+                correct: 1
+            },
+            {
+                question: "... у Татьяны были деньги, она поехала бы отдыхать за границу.",
+                options: ["Когда", "Если", "Если бы"],
+                correct: 2
+            },
+            {
+                question: "Папа приехал из Англии и ... подарки детям.",
+                options: ["привел", "привез", "принес"],
+                correct: 1
+            },
+            {
+                question: "Ему нельзя ..., у него не работает телефон.",
+                options: ["отзвонить", "позвонить", "звонить"],
+                correct: 2
+            },
+            {
+                question: "Интервью не состоялось ... организаторов.",
+                options: ["из-за вины", "по вине", "от вины"],
+                correct: 1
+            },
+            {
+                question: "Ребенок стесняется ...",
+                options: ["незнакомым людям", "незнакомых людей", "незнакомыми людьми"],
+                correct: 1
+            },
+            {
+                question: "Наш университет считается ... в России.",
+                options: ["лучший", "лучшем", "лучшим"],
+                correct: 2
+            },
+            {
+                question: "Врач советует детям не злоупотреблять ...",
+                options: ["шоколадом", "шоколада", "шоколад"],
+                correct: 0
+            },
+            {
+                question: "Весной студентам трудно сосредоточиться ...",
+                options: ["с учебой", "за учебу", "на учебе"],
+                correct: 2
+            },
+            {
+                question: "В столовой меня кто-то толкнул и я ... кофе на платье.",
+                options: ["отлила", "пролила", "перелила"],
+                correct: 1
+            },
+            {
+                question: "Новогодний концерт, ... по телевидению, закончился поздно ночью.",
+                options: ["транслирующийся", "транслируемый", "транслировавшийся"],
+                correct: 1
+            },
+            {
+                question: "Я хочу посмотреть, как в Петербурге ... мосты.",
+                options: ["разводятся", "расходятся", "разносятся"],
+                correct: 0
+            },
+            {
+                question: "Моя подруга еще ... в школе.",
+                options: ["изучает", "учит", "учится"],
+                correct: 2
+            },
+            {
+                question: "Летом в Москве стоит ... погода.",
+                options: ["жаркая", "жарко", "жаркий"],
+                correct: 0
+            },
+            {
+                question: "Мой друг завтра едет в ...",
+                options: ["в Америке на работу", "в Америку в работу", "в Америку на работу"],
+                correct: 2
+            },
+            {
+                question: "Я не люблю ... радио.",
+                options: ["слышать", "слушаю", "слушать"],
+                correct: 2
+            },
+            {
+                question: "Студенты мечтают ...",
+                options: ["в каникулы", "о каникулах", "о каникулы"],
+                correct: 1
+            },
+            {
+                question: "Мой отец работает ...",
+                options: ["биологом", "биолога", "биолог"],
+                correct: 0
+            },
+            {
+                question: "Это сестра ...",
+                options: ["Антону", "Антон", "Антона"],
+                correct: 2
+            },
+            {
+                question: "В субботу мы решили ... в театр.",
+                options: ["ходить", "пойдем", "пойти"],
+                correct: 2
+            },
+            {
+                question: "Дядя Ваня, ... живет рядом, завтра будет играть с нами в футбол.",
+                options: ["которые", "которая", "который"],
+                correct: 2
+            },
+            {
+                question: "Дети, ... пожалуйста, новые слова каждый день.",
+                options: ["повтори", "повторите", "повторяйте"],
+                correct: 2
+            },
+            {
+                question: "Мартин говорит по-русски ...",
+                options: ["хорошее", "хороший", "хорошо"],
+                correct: 2
+            },
+            {
+                question: "Антон много путешествует и часто ... интересные истории.",
+                options: ["рассказывает", "говорит", "разговаривает"],
+                correct: 0
+            },
+            {
+                question: "Джон часто звонит ...",
+                options: ["своих родителей", "своим родителям", "своими родителями"],
+                correct: 1
+            },
+            {
+                question: "В нашей семье 5 ...",
+                options: ["людей", "человеков", "человек"],
+                correct: 2
+            },
+            {
+                question: "Вчера родители ... письмо от сына.",
+                options: ["взяли", "послали", "получили"],
+                correct: 2
+            },
+            {
+                question: "Директор ... из кабинета и вернется через 5 минут.",
+                options: ["ушел", "отошел", "вышел"],
+                correct: 2
+            },
+            {
+                question: "Я пригласил на день рождения ...",
+                options: ["моим друзьям", "моих друзей", "мои друзья"],
+                correct: 1
+            },
+            {
+                question: "Когда мы ... домой, начался дождь.",
+                options: ["пойдем", "ходили", "шли"],
+                correct: 2
+            },
+            {
+                question: "Летом мы будем отдыхать ...",
+                options: ["за месяц", "месяц", "на месяц"],
+                correct: 2
+            },
+            {
+                question: "Я знаю новое правило хорошо, а мой друг знает его ...",
+                options: ["хорошее", "лучше", "громче"],
+                correct: 1
             }
         ];
 
-        let currentQuiz = russianQuestions;
-        let userAnswers = new Array(currentQuiz.length).fill(null);
+        let userAnswers = new Array(questions.length).fill(null);
 
         function displayQuiz() {
             const quizContainer = document.getElementById('quiz');
             let html = '';
 
-            currentQuiz.forEach((q, questionIndex) => {
+            questions.forEach((q, questionIndex) => {
                 html += `
                     <div class="question">
                         <h5>Вопрос ${questionIndex + 1}: ${q.question}</h5>
@@ -139,19 +362,19 @@
             if (!checkLoginStatus()) return;
             
             const score = userAnswers.reduce((acc, answer, index) => {
-                return acc + (answer === currentQuiz[index].correct ? 1 : 0);
+                return acc + (answer === questions[index].correct ? 1 : 0);
             }, 0);
 
-            const percentage = (score / currentQuiz.length) * 100;
+            const percentage = (score / questions.length) * 100;
             let level = "A1";
 
-            if (percentage >= 90) level = "C1";
-            else if (percentage >= 75) level = "B2";
-            else if (percentage >= 60) level = "B1";
+            if (percentage >= 85) level = "C1";
+            else if (percentage >= 70) level = "B2";
+            else if (percentage >= 55) level = "B1";
             else if (percentage >= 40) level = "A2";
 
             try {
-                const response = await fetch('/quiz/submit', {
+                const response = await fetch('/level-test/submit', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -160,8 +383,7 @@
                         user_id: localStorage.getItem('currentUser'),
                         course: 'russian',
                         score: percentage,
-                        level: level,
-                        is_level_test: true
+                        level: level
                     })
                 });
 
@@ -179,6 +401,51 @@
 
         document.getElementById('submitQuiz').addEventListener('click', submitQuiz);
         displayQuiz();
+
+        // Функция для переключения темы
+        function toggleMode() {
+            const body = document.body;
+            const modeToggleButton = document.getElementById("modeToggle");
+            const isLightMode = body.classList.contains("light-mode");
+
+            if (isLightMode) {
+                body.classList.remove("light-mode");
+                body.classList.add("dark-mode");
+                modeToggleButton.textContent = "🌞";
+                localStorage.setItem("theme", "dark-mode");
+            } else {
+                body.classList.remove("dark-mode");
+                body.classList.add("light-mode");
+                modeToggleButton.textContent = "🌙";
+                localStorage.setItem("theme", "light-mode");
+            }
+        }
+
+        // Инициализация темы при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem("theme");
+            const body = document.body;
+            const modeToggleButton = document.getElementById("modeToggle");
+
+            if (savedTheme) {
+                body.classList.remove("light-mode", "dark-mode");
+                body.classList.add(savedTheme);
+                if (savedTheme === "dark-mode") {
+                    modeToggleButton.textContent = "🌞";
+                } else {
+                    modeToggleButton.textContent = "🌙";
+                }
+            } else {
+                body.classList.add("light-mode");
+                modeToggleButton.textContent = "🌙";
+            }
+
+            // Добавляем обработчик для кнопки переключения темы
+            modeToggleButton.addEventListener("click", toggleMode);
+
+            // Отображаем тест
+            displayQuiz();
+        });
     </script>
 </body>
 </html> 

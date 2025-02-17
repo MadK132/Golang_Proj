@@ -28,24 +28,35 @@
         }
 
         .option {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 12px 15px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
         }
 
-        .option:hover {
-            background-color: #f0f0f0;
+        .option::before {
+            content: "";
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #007bff;
+            margin-right: 12px;
+            transition: all 0.3s ease;
         }
 
-        .option.selected {
+        .option.selected::before {
             background-color: #007bff;
-            color: white;
+            box-shadow: 0 0 0 2px #fff inset;
         }
 
         .progress-container {
-            margin: 20px 0;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+            text-align: center;
         }
 
         #submitQuiz {
@@ -76,50 +87,125 @@
             overflow-y: auto;
         }
 
-        .nav.flex-column {
-            display: flex;
-            flex-direction: column !important;
+        .quiz-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-        .nav-item {
-            display: block;
-            width: 100%;
-            margin-bottom: 5px;
+        .quiz-list li {
+            position: relative;
+            padding: 8px 0 8px 24px;
+            margin: 0;
         }
 
-        .nav-link {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
+        .quiz-list li a {
             color: #333;
             text-decoration: none;
-            border-bottom: 1px solid #eee;
+            display: block;
         }
 
-        .nav-link:hover {
-            background-color: #e9ecef;
+        .quiz-list li::before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            color: #666;
+            font-size: 1.2em;
         }
 
-        .nav-link.active {
-            background-color: #007bff;
-            color: white !important;
+        .quiz-list li::after {
+            content: "";
+            position: absolute;
+            left: 14px;
+            top: 28px;
+            bottom: 0;
+            width: 1px;
+            background-color: rgba(102, 102, 102, 0.3);
+        }
+
+        .quiz-list li:last-child::after {
+            display: none;
+        }
+
+        .quiz-list li:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .quiz-list li.active {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .dark-mode .quiz-list li a {
+            color: #ffffff;
+        }
+
+        .dark-mode .quiz-list li::before {
+            color: #999;
+        }
+
+        .dark-mode .quiz-list li::after {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .dark-mode .quiz-list li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .quiz-list li.active {
+            background-color: rgba(0, 123, 255, 0.2);
+        }
+
+        .dark-mode .option {
+            background-color: #2d2d2d;
+            border: 1px solid #404040;
+            color: #ffffff;
+        }
+
+        .dark-mode .option:hover {
+            background-color: #363636;
+            border-color: #007bff;
+        }
+
+        .dark-mode .option.selected {
+            background-color: #1a365d;
+            border-color: #007bff;
+            color: #ffffff;
+            font-weight: 500;
         }
 
         .completion-check {
             color: #28a745;
-            display: none;
             margin-left: 10px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .nav-link.active .completion-check {
-            color: white !important;
+        .progress-bar {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.5s ease-in-out;
+            background-image: linear-gradient(45deg, 
+                rgba(255, 255, 255, 0.15) 25%, 
+                transparent 25%, 
+                transparent 50%, 
+                rgba(255, 255, 255, 0.15) 50%, 
+                rgba(255, 255, 255, 0.15) 75%, 
+                transparent 75%, 
+                transparent);
+            background-size: 1rem 1rem;
+            animation: progress-bar-stripes 1s linear infinite;
         }
 
-        .progress-container {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #dee2e6;
+        @keyframes progress-bar-stripes {
+            0% { background-position: 1rem 0; }
+            100% { background-position: 0 0; }
+        }
+
+        #progressText {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 8px;
         }
 
         .sidebar-heading {
@@ -188,12 +274,284 @@
         .navigation-buttons button {
             min-width: 120px;
         }
+
+        /* Стиль для кнопки переключения темы */
+        #modeToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #modeToggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Светлая тема */
+        .light-mode {
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        .light-mode .sidebar {
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .light-mode .quiz-container {
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .light-mode .quiz-list li a {
+            color: #333;
+        }
+
+        .light-mode .quiz-list li::before {
+            color: #666;
+        }
+
+        .light-mode .quiz-list li::after {
+            background-color: rgba(102, 102, 102, 0.3);
+        }
+
+        .light-mode .quiz-list li:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .light-mode .quiz-list li.active {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .light-mode .option {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            color: #333;
+        }
+
+        .light-mode .option:hover {
+            background-color: #f5f5f5;
+            border-color: #007bff;
+        }
+
+        .light-mode .option.selected {
+            background-color: #e3f2fd;
+            border-color: #007bff;
+            color: #0056b3;
+            font-weight: 500;
+        }
+
+        .light-mode #progressText {
+            color: #666;
+        }
+        .dark-mode .progress-bar {
+            background-color: #4CAF50;
+        }
+
+        .dark-mode .progress {
+            background-color: #404040;
+            border: 1px solid #2d2d2d;
+        }
+
+        .dark-mode #progressText {
+            color: #b0b0b0;
+        }
+        /* Темная тема */
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .dark-mode .sidebar {
+            background-color: #2d2d2d;
+            border-right: 1px solid #404040;
+        }
+
+        .dark-mode .quiz-container {
+            background-color: #2d2d2d;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .dark-mode .sidebar-heading {
+            color: #ffffff;
+        }
+
+        .dark-mode .nav-link {
+            color: #ffffff;
+        }
+
+        .dark-mode .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-mode .nav-link::before {
+            color: #999;
+        }
+
+        .dark-mode .nav-item:not(:last-child)::after {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode #progressText {
+            color: #b0b0b0;
+        }
+
+        .dark-mode .progress-container {
+            border-bottom-color: #404040;
+        }
+
+        /* Стили для кнопок управления */
+        .quiz-controls {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .quiz-list li a:hover .quiz-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .delete-quiz-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .delete-quiz-btn:hover {
+            background: #c82333;
+        }
+
+        .quiz-list li a {
+            position: relative;
+            padding-right: 40px;
+        }
+
+        /* Стили для кнопки добавления квиза */
+        #addQuizBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            font-weight: bold;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Стили для темной темы */
+        .dark-mode #addQuizBtn {
+            background-color: #4CAF50;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+
+        .dark-mode #addQuizBtn:hover {
+            background-color: #388E3C;
+            transform: scale(1.1);
+        }
+
+        /* Стили для светлой темы */
+        .light-mode #addQuizBtn:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .question-form {
+            position: relative;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .options-container {
+            margin-top: 10px;
+        }
+
+        .option-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .delete-question-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .delete-question-btn:hover {
+            background: #c82333;
+        }
+
+        .dark-mode .modal-content {
+            background-color: #2d2d2d;
+            color: white;
+        }
     </style>
 </head>
 <body class="light-mode">
-    <header class="header py-3">
-        <!-- Same header as other pages -->
-    </header>
+    <button id="modeToggle" class="btn btn-light" onclick="toggleMode()">🌙</button>
 
     <div class="container-fluid">
         <div class="row">
@@ -211,8 +569,15 @@
                         <p class="mt-2" id="progressText">0/5 тестов завершено</p>
                     </div>
                     <h6 class="sidebar-heading">Доступные тесты</h6>
-                    <ul class="nav flex-column">
-                        <!-- Здесь будут отображаться тесты -->
+                    <ul class="quiz-list">
+                        ${quizLessons.map(quiz => `
+                            <li data-quiz-id="${quiz.id}">
+                                <a href="#" onclick="loadQuiz('${quiz.id}'); return false;">
+                                    <span class="quiz-number">Тест ${quizLessons.indexOf(quiz) + 1}:</span> 
+                                    ${quiz.title}
+                                </a>
+                            </li>
+                        `).join('')}
                     </ul>
                 </div>
             </nav>
@@ -232,12 +597,36 @@
         </div>
     </div>
 
+    <button id="addQuizBtn" onclick="showAddQuizForm()">+</button>
+
+    <!-- Модальное окно для добавления квиза -->
+    <div id="addQuizModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Добавить новый тест</h2>
+            <form id="addQuizForm" onsubmit="addNewQuiz(event)">
+                <div class="form-group">
+                    <label for="quizTitle">Название теста:</label>
+                    <input type="text" id="quizTitle" class="form-control" required>
+                </div>
+                <div id="questionsContainer">
+                    <!-- Здесь будут добавляться вопросы -->
+                </div>
+                <button type="button" class="btn btn-secondary mt-3" onclick="addQuestionForm()">
+                    Добавить вопрос
+                </button>
+                <button type="submit" class="btn btn-primary mt-3">Создать тест</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         let questions = [];
         let currentQuestion = 0;
         let answers = [];
 
-        const quizLessons = [
+        // Инициализация данных с проверкой localStorage
+        let quizLessons = JSON.parse(localStorage.getItem('quizLessons')) || [
             {
                 id: 'quiz1',
                 title: 'Базовая грамматика',
@@ -265,7 +654,8 @@
             }
         ];
 
-        const quizQuestions = {
+        // Инициализация вопросов с проверкой localStorage
+        let quizQuestions = JSON.parse(localStorage.getItem('quizQuestions')) || {
             quiz1: [
                 {
                     question: "Что такое подлежащее?",
@@ -273,7 +663,7 @@
                         "Главный член предложения, обозначающий предмет речи",
                         "Член предложения, обозначающий действие",
                         "Часть речи, обозначающая признак",
-                        "Служебная часть речи"
+                        "Второстепенный член предложения"
                     ],
                     correct: 0
                 },
@@ -558,36 +948,38 @@
             ]
         };
 
+        // Если данные отсутствуют в localStorage, сохраняем начальные значения
+        if (!localStorage.getItem('quizLessons')) {
+            localStorage.setItem('quizLessons', JSON.stringify(quizLessons));
+        }
+        if (!localStorage.getItem('quizQuestions')) {
+            localStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
+        }
+
         function displayQuestion() {
-            const quizContainer = document.getElementById('quiz');
             const question = questions[currentQuestion];
-            
-            let html = `
+            const quizHtml = `
                 <div class="question">
-                    <h4>Вопрос ${currentQuestion + 1} из ${questions.length}</h4>
-                    <p>${question.question}</p>
+                    <h4>${question.question}</h4>
                     <div class="options">
                         ${question.options.map((option, index) => `
                             <div class="option ${answers[currentQuestion] === index ? 'selected' : ''}" 
-                                 onclick="selectOption(${index})">
+                                 onclick="selectAnswer(${index})">
                                 ${option}
                             </div>
                         `).join('')}
                     </div>
                 </div>
-                <div class="navigation-buttons mt-3">
+                <div class="navigation-buttons">
                     ${currentQuestion > 0 ? 
                         `<button class="btn btn-secondary" onclick="previousQuestion()">Предыдущий</button>` : 
-                        ''
-                    }
+                        `<button class="btn btn-secondary" disabled>Предыдущий</button>`}
                     ${currentQuestion < questions.length - 1 ? 
                         `<button class="btn btn-primary" onclick="nextQuestion()">Следующий</button>` : 
-                        `<button class="btn btn-success" onclick="submitQuiz()">Завершить тест</button>`
-                    }
+                        `<button class="btn btn-success" onclick="submitQuiz()">Завершить тест</button>`}
                 </div>
             `;
-            
-            quizContainer.innerHTML = html;
+            document.getElementById('quiz').innerHTML = quizHtml;
             updateProgress();
         }
 
@@ -609,7 +1001,7 @@
             }
         }
 
-        function selectOption(index) {
+        function selectAnswer(index) {
             answers[currentQuestion] = index;
             displayQuestion();
         }
@@ -631,31 +1023,43 @@
         }
 
         function loadQuiz(quizId) {
+            console.log('Loading quiz:', quizId);
             const quiz = quizLessons.find(q => q.id === quizId);
-            if (!quiz) return;
+            if (!quiz) {
+                console.error('Quiz not found:', quizId);
+                return;
+            }
 
             // Обновляем заголовок
             document.querySelector('.quiz-container h2').textContent = quiz.title;
             
             // Загружаем вопросы для текущего квиза
             questions = quizQuestions[quizId];
+            if (!questions) {
+                console.error('No questions found for quiz:', quizId);
+                return;
+            }
+
             currentQuestion = 0;
             answers = new Array(questions.length).fill(null);
             
             // Подсвечиваем текущий тест в сайдбаре
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
+            document.querySelectorAll('.quiz-list li').forEach(li => {
+                li.classList.remove('active');
             });
-            document.querySelector(`[data-quiz-id="${quizId}"] .nav-link`).classList.add('active');
+            document.querySelector(`[data-quiz-id="${quizId}"]`).classList.add('active');
 
             // Обновляем URL без перезагрузки страницы
             history.pushState({quizId}, '', `/quiz?id=${quizId}`);
             
-            // Показываем первый вопрос
-            displayQuestion();
-            
-            // Проверяем, был ли тест уже завершен
-            checkQuizCompletion(quizId);
+            // Сначала проверяем, есть ли сохраненные результаты
+            checkQuizCompletion(quizId).then(wasCompleted => {
+                console.log('Quiz completion check result:', wasCompleted);
+                // Показываем первый вопрос только если нет сохраненных результатов
+                if (!wasCompleted) {
+                    displayQuestion();
+                }
+            });
         }
 
         // Инициализация при загрузке страницы
@@ -672,38 +1076,45 @@
             if (!currentUser) return;
 
             try {
-                // Счетчик завершенных тестов
-                let completedQuizzes = 0;
-                const totalQuizzes = quizLessons.length; // Общее количество тестов
+                console.log('Fetching progress for user:', currentUser);
+                
+                // Получаем завершенные тесты
+                const completedResponse = await fetch(`/quizzes/completed/${currentUser}/russian`);
+                if (!completedResponse.ok) {
+                    throw new Error('Failed to fetch completed quizzes');
+                }
+                
+                const completedQuizzes = await completedResponse.json();
+                console.log('Completed quizzes:', completedQuizzes);
 
-                // Проверяем каждый тест
-                for (const quiz of quizLessons) {
-                    try {
-                        const response = await fetch(`/quiz/progress/${currentUser}/${quiz.id}`);
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (data.completed) {
-                                completedQuizzes++;
-                                // Показываем галочку для завершенного теста
-                                const checkmark = document.querySelector(`[data-quiz-id="${quiz.id}"] .completion-check`);
-                                if (checkmark) {
-                                    checkmark.style.display = 'inline';
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.error(`Error checking quiz ${quiz.id}:`, error);
-                    }
+                // Вычисляем процент завершения
+                const totalQuizzes = quizLessons.length; // Общее количество тестов
+                const completedCount = completedQuizzes.length; // Количество завершенных тестов
+                const progressPercentage = (completedCount / totalQuizzes) * 100;
+
+                // Обновляем прогресс-бар
+                const progressBar = document.getElementById('quizProgress');
+                if (progressBar) {
+                    progressBar.style.width = `${progressPercentage}%`;
+                    progressBar.setAttribute('aria-valuenow', progressPercentage);
                 }
 
-                // Вычисляем процент завершенных тестов
-                const progressPercentage = (completedQuizzes / totalQuizzes) * 100;
+                // Обновляем текст прогресса
+                const progressText = document.getElementById('progressText');
+                if (progressText) {
+                    progressText.textContent = 
+                        `${completedCount}/${totalQuizzes} тестов завершено (${Math.round(progressPercentage)}%)`;
+                }
 
-                // Обновляем прогресс-бар и текст
-                document.getElementById('quizProgress').style.width = `${progressPercentage}%`;
-                document.getElementById('progressText').textContent = 
-                    `${completedQuizzes}/${totalQuizzes} тестов завершено (${Math.round(progressPercentage)}%)`;
+                // Обновляем чекмарки для завершенных тестов
+                completedQuizzes.forEach(quizId => {
+                    const checkmark = document.querySelector(`[data-quiz-id="${quizId}"] .completion-check`);
+                    if (checkmark) {
+                        checkmark.style.display = 'inline';
+                    }
+                });
 
+                console.log(`Progress updated: ${completedCount}/${totalQuizzes} (${progressPercentage}%)`);
             } catch (error) {
                 console.error('Error fetching progress:', error);
             }
@@ -714,59 +1125,99 @@
             if (!currentUser) return;
 
             try {
+                console.log('Checking completion for quiz:', quizId);
                 const response = await fetch(`/quiz/progress/${currentUser}/${quizId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.completed) {
-                        // Показываем результаты предыдущей попытки
-                        let resultHtml = `
-                            <div class="question mb-4">
-                                <h3>Результаты теста</h3>
-                                <p>Правильных ответов: ${data.correct_answers} из ${data.total_questions}</p>
-                                <p>Ваш результат: ${data.score.toFixed(1)}%</p>
-                            </div>
+                console.log('Response status:', response.status);
 
-                            <div class="answers-review">
-                                <h4>Проверка ответов:</h4>
-                                ${quizQuestions[quizId].map((q, i) => `
-                                    <div class="answer-item ${data.user_answers[i] === q.correct ? 'correct' : 'incorrect'} mb-3">
-                                        <p class="mb-2"><strong>Вопрос ${i + 1}:</strong> ${q.question}</p>
-                                        <p class="mb-1">
-                                            <strong>Ваш ответ:</strong> 
-                                            <span class="${data.user_answers[i] === q.correct ? 'text-success' : 'text-danger'}">
-                                                ${q.options[data.user_answers[i]]}
-                                                ${data.user_answers[i] === q.correct ? 
-                                                    '<i class="fas fa-check text-success"></i>' : 
-                                                    '<i class="fas fa-times text-danger"></i>'}
-                                            </span>
-                                        </p>
-                                        ${data.user_answers[i] !== q.correct ? 
-                                            `<p class="mb-0 text-success">
-                                                <strong>Правильный ответ:</strong> ${q.options[q.correct]}
-                                            </p>` : 
-                                            ''}
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <button class="btn btn-primary mt-3" onclick="restartQuiz('${quizId}')">Пройти тест заново</button>
-                        `;
-                        document.getElementById('quiz').innerHTML = resultHtml;
-
-                        // Обновляем чекмарк в сайдбаре
-                        const checkmark = document.querySelector(`[data-quiz-id="${quizId}"] .completion-check`);
-                        if (checkmark) {
-                            checkmark.style.display = 'inline';
-                        }
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        console.log('No previous results found');
+                        return false;
                     }
+                    throw new Error(`Failed to fetch quiz progress: ${response.status}`);
                 }
+
+                const data = await response.json();
+                console.log('Received quiz data:', data);
+                
+                if (data && data.completed) {
+                    console.log('Quiz was completed, showing results');
+                    
+                    // Загружаем вопросы для текущего квиза, если еще не загружены
+                    if (!questions || questions.length === 0) {
+                        questions = quizQuestions[quizId];
+                    }
+
+                    // Показываем сохраненные результаты
+                    showQuizResults(
+                        data.correct_answers, 
+                        data.score, 
+                        quizId, 
+                        data.user_answers
+                    );
+                    
+                    // Обновляем чекмарк в сайдбаре
+                    const checkmark = document.querySelector(`[data-quiz-id="${quizId}"] .completion-check`);
+                    if (checkmark) {
+                        checkmark.style.display = 'inline';
+                    }
+
+                    // Скрываем навигацию по вопросам, так как показываем результаты
+                    const quizContainer = document.getElementById('quiz');
+                    const navigationButtons = quizContainer.querySelector('.navigation-buttons');
+                    if (navigationButtons) {
+                        navigationButtons.style.display = 'none';
+                    }
+
+                    return true;
+                }
+
+                return false;
             } catch (error) {
                 console.error('Error checking quiz completion:', error);
+                return false;
             }
         }
 
+        function showQuizResults(correctAnswers, score, quizId, userAnswers) {
+            let resultHtml = `
+                <div class="question mb-4">
+                    <h3>Результаты теста</h3>
+                    <p>Правильных ответов: ${correctAnswers} из ${questions.length}</p>
+                    <p>Ваш результат: ${score.toFixed(1)}%</p>
+                </div>
+
+                <div class="answers-review">
+                    <h4>Проверка ответов:</h4>
+                    ${questions.map((q, i) => `
+                        <div class="answer-item ${userAnswers[i] === q.correct ? 'correct' : 'incorrect'} mb-3">
+                            <p class="mb-2"><strong>Вопрос ${i + 1}:</strong> ${q.question}</p>
+                            <p class="mb-1">
+                                <strong>Ваш ответ:</strong> 
+                                <span class="${userAnswers[i] === q.correct ? 'text-success' : 'text-danger'}">
+                                    ${q.options[userAnswers[i]]}
+                                    ${userAnswers[i] === q.correct ? 
+                                        '<i class="fas fa-check text-success"></i>' : 
+                                        '<i class="fas fa-times text-danger"></i>'}
+                                </span>
+                            </p>
+                            ${userAnswers[i] !== q.correct ? 
+                                `<p class="mb-0 text-success">
+                                    <strong>Правильный ответ:</strong> ${q.options[q.correct]}
+                                </p>` : 
+                                ''}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <button class="btn btn-primary mt-3" onclick="restartQuiz('${quizId}')">Пройти тест заново</button>
+            `;
+
+            document.getElementById('quiz').innerHTML = resultHtml;
+        }
+
         async function initializeSidebar() {
-            const sidebarList = document.querySelector('.nav.flex-column');
+            const sidebarList = document.querySelector('.quiz-list');
             if (!sidebarList) {
                 console.error('Sidebar list element not found');
                 return;
@@ -775,11 +1226,15 @@
             const currentUser = localStorage.getItem('currentUser');
             
             // Создаем HTML для сайдбара
-            const sidebarContent = quizLessons.map(quiz => `
-                <li class="nav-item" data-quiz-id="${quiz.id}">
-                    <a class="nav-link d-flex justify-content-between align-items-center" href="#" onclick="loadQuiz('${quiz.id}'); return false;">
-                        <span>${quiz.title}</span>
-                        <span class="completion-check">✓</span>
+            const sidebarContent = quizLessons.map((quiz, index) => `
+                <li data-quiz-id="${quiz.id}">
+                    <a href="#" onclick="loadQuiz('${quiz.id}'); return false;">
+                        <span class="quiz-number">Тест ${index + 1}:</span> 
+                        ${quiz.title}
+                        <div class="quiz-controls">
+                            <button class="delete-quiz-btn" 
+                                    onclick="event.stopPropagation(); deleteQuiz('${quiz.id}')">✕</button>
+                        </div>
                     </a>
                 </li>
             `).join('');
@@ -838,6 +1293,11 @@
                 acc + (answer === questions[index].correct ? 1 : 0), 0);
 
             try {
+                // Сначала удаляем предыдущие результаты
+                await fetch(`/quiz/delete/${localStorage.getItem('currentUser')}/${currentQuizId}`, {
+                    method: 'DELETE'
+                });
+
                 const response = await fetch('/quiz/submit', {
                     method: 'POST',
                     headers: {
@@ -845,64 +1305,22 @@
                     },
                     body: JSON.stringify({
                         user_id: localStorage.getItem('currentUser'),
-                        course: 'russian',
                         quiz_id: currentQuizId,
+                        course: 'russian',
                         score: score,
                         correct_answers: correctAnswersCount,
                         total_questions: questions.length,
                         user_answers: answers,
-                        completed: true,
-                        is_level_test: false
+                        completed: true
                     })
                 });
 
                 if (response.ok) {
                     const result = await response.json();
-                    
-                    // Показываем результаты
-                    let resultHtml = `
-                        <div class="question mb-4">
-                            <h3>Результаты теста</h3>
-                            <p>Правильных ответов: ${correctAnswersCount} из ${questions.length}</p>
-                            <p>Ваш результат: ${score.toFixed(1)}%</p>
-                        </div>
-
-                        <div class="answers-review">
-                            <h4>Проверка ответов:</h4>
-                            ${questions.map((q, i) => `
-                                <div class="answer-item ${answers[i] === q.correct ? 'correct' : 'incorrect'} mb-3">
-                                    <p class="mb-2"><strong>Вопрос ${i + 1}:</strong> ${q.question}</p>
-                                    <p class="mb-1">
-                                        <strong>Ваш ответ:</strong> 
-                                        <span class="${answers[i] === q.correct ? 'text-success' : 'text-danger'}">
-                                            ${q.options[answers[i]]}
-                                            ${answers[i] === q.correct ? 
-                                                '<i class="fas fa-check text-success"></i>' : 
-                                                '<i class="fas fa-times text-danger"></i>'}
-                                        </span>
-                                    </p>
-                                    ${answers[i] !== q.correct ? 
-                                        `<p class="mb-0 text-success">
-                                            <strong>Правильный ответ:</strong> ${q.options[q.correct]}
-                                        </p>` : 
-                                        ''}
-                                </div>
-                            `).join('')}
-                        </div>
-
-                        <button class="btn btn-primary mt-3" onclick="loadQuiz('${currentQuizId}')">Пройти тест заново</button>
-                    `;
-
-                    document.getElementById('quiz').innerHTML = resultHtml;
-
-                    // Обновляем чекмарк в сайдбаре
-                    const checkmark = document.querySelector(`[data-quiz-id="${currentQuizId}"] .completion-check`);
-                    if (checkmark) {
-                        checkmark.style.display = 'inline';
-                    }
-                    
-                    // Обновляем общий прогресс
-                    fetchQuizProgress();
+                    showQuizResults(correctAnswersCount, score, currentQuizId, answers);
+                    await fetchQuizProgress();
+                } else {
+                    throw new Error('Failed to submit quiz');
                 }
             } catch (error) {
                 console.error('Ошибка:', error);
@@ -924,16 +1342,245 @@
             answers = new Array(questions.length).fill(null);
             
             // Подсвечиваем текущий тест в сайдбаре
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
+            document.querySelectorAll('.quiz-list li').forEach(li => {
+                li.classList.remove('active');
             });
-            document.querySelector(`[data-quiz-id="${quizId}"] .nav-link`).classList.add('active');
+            document.querySelector(`[data-quiz-id="${quizId}"]`).classList.add('active');
 
             // Обновляем URL без перезагрузки страницы
             history.pushState({quizId}, '', `/quiz?id=${quizId}`);
             
             // Показываем первый вопрос
             displayQuestion();
+        }
+
+        function toggleMode() {
+            const body = document.body;
+            const modeToggleButton = document.getElementById("modeToggle");
+            const progressBar = document.getElementById('quizProgress');
+            const isLightMode = body.classList.contains("light-mode");
+
+            if (isLightMode) {
+                body.classList.remove("light-mode");
+                body.classList.add("dark-mode");
+                progressBar.style.backgroundColor = "#4CAF50"; // зеленый для темной темы
+
+                modeToggleButton.textContent = "🌞";
+                localStorage.setItem("theme", "dark-mode");
+            } else {
+                body.classList.remove("dark-mode");
+                body.classList.add("light-mode");
+                progressBar.style.backgroundColor = "#007bff"; // синий для светлой темы
+
+                modeToggleButton.textContent = "🌙";
+                localStorage.setItem("theme", "light-mode");
+            }
+        }
+
+        // Загрузка сохраненной темы
+        window.addEventListener("load", function() {
+            const savedTheme = localStorage.getItem("theme");
+            const body = document.body;
+            const modeToggleButton = document.getElementById("modeToggle");
+
+            if (savedTheme) {
+                body.classList.remove("light-mode", "dark-mode");
+                body.classList.add(savedTheme);
+
+                if (savedTheme === "dark-mode") {
+                    modeToggleButton.textContent = "🌞";
+                } else {
+                    modeToggleButton.textContent = "🌙";
+                }
+            } else {
+                body.classList.add("light-mode");
+                modeToggleButton.textContent = "🌙";
+            }
+        });
+
+        // Функция для добавления формы вопроса
+        function addQuestionForm() {
+            const container = document.getElementById('questionsContainer');
+            const questionNumber = container.children.length + 1;
+            
+            const questionForm = document.createElement('div');
+            questionForm.className = 'question-form';
+            questionForm.innerHTML = `
+                <button type="button" class="delete-question-btn" onclick="deleteQuestion(this)">×</button>
+                <h4>Вопрос ${questionNumber}</h4>
+                <div class="form-group">
+                    <label>Текст вопроса:</label>
+                    <input type="text" class="form-control question-text" required>
+                </div>
+                <div class="options-container">
+                    <div class="option-input">
+                        <input type="radio" name="correct_${questionNumber}" value="0" required>
+                        <input type="text" class="form-control" placeholder="Вариант ответа 1" required>
+                    </div>
+                    <div class="option-input">
+                        <input type="radio" name="correct_${questionNumber}" value="1">
+                        <input type="text" class="form-control" placeholder="Вариант ответа 2" required>
+                    </div>
+                    <div class="option-input">
+                        <input type="radio" name="correct_${questionNumber}" value="2">
+                        <input type="text" class="form-control" placeholder="Вариант ответа 3" required>
+                    </div>
+                    <div class="option-input">
+                        <input type="radio" name="correct_${questionNumber}" value="3">
+                        <input type="text" class="form-control" placeholder="Вариант ответа 4" required>
+                    </div>
+                </div>
+            `;
+            container.appendChild(questionForm);
+            renumberQuestions();
+        }
+
+        function deleteQuestion(button) {
+            const form = button.closest('.question-form');
+            if (document.getElementsByClassName('question-form').length > 1) {
+                form.remove();
+                renumberQuestions();
+            } else {
+                alert('Должен остаться хотя бы один вопрос');
+            }
+        }
+
+        function renumberQuestions() {
+            const questions = document.getElementsByClassName('question-form');
+            Array.from(questions).forEach((form, index) => {
+                form.querySelector('h4').textContent = `Вопрос ${index + 1}`;
+                const radioButtons = form.querySelectorAll('input[type="radio"]');
+                radioButtons.forEach(radio => {
+                    radio.name = `correct_${index + 1}`;
+                });
+            });
+        }
+
+        function addNewQuiz(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('quizTitle').value;
+            const questionForms = document.getElementsByClassName('question-form');
+            const questions = [];
+
+            for (let form of questionForms) {
+                const questionText = form.querySelector('.question-text').value;
+                const options = Array.from(form.querySelectorAll('.option-input input[type="text"]'))
+                    .map(input => input.value);
+                const correctAnswer = parseInt(form.querySelector('input[type="radio"]:checked').value);
+
+                questions.push({
+                    question: questionText,
+                    options: options,
+                    correct: correctAnswer
+                });
+            }
+
+            // Создаем новый ID на основе текущего количества тестов
+            const newId = `quiz${quizLessons.length + 1}`;
+
+            // Добавляем новый тест в quizLessons
+            const newQuizLesson = {
+                id: newId,
+                title: title,
+                description: `Тест: ${title}`
+            };
+            quizLessons.push(newQuizLesson);
+
+            // Добавляем вопросы в quizQuestions
+            quizQuestions[newId] = questions;
+
+            // Сохраняем обновленные данные в localStorage
+            localStorage.setItem('quizLessons', JSON.stringify(quizLessons));
+            localStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
+
+            closeModal();
+            // Обновляем список тестов в сайдбаре
+            const sidebarList = document.querySelector('.quiz-list');
+            if (sidebarList) {
+                sidebarList.innerHTML = quizLessons.map((quiz, index) => `
+                    <li data-quiz-id="${quiz.id}">
+                        <a href="#" onclick="loadQuiz('${quiz.id}'); return false;">
+                            <span class="quiz-number">Тест ${index + 1}:</span> 
+                            ${quiz.title}
+                        </a>
+                    </li>
+                `).join('');
+            }
+
+            // Загружаем новый тест
+            loadQuiz(newId);
+        }
+
+        function showAddQuizForm() {
+            document.getElementById('addQuizModal').style.display = 'block';
+            document.getElementById('questionsContainer').innerHTML = '';
+            addQuestionForm(); // Добавляем первый вопрос по умолчанию
+        }
+
+        function closeModal() {
+            document.getElementById('addQuizModal').style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('addQuizModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function updateSidebar() {
+            const sidebarMenu = document.querySelector('.sidebar-menu');
+            sidebarMenu.innerHTML = '';
+
+            videoLessons.forEach((video, index) => {
+                const videoElement = document.createElement('li');
+                videoElement.innerHTML = `
+                    <a href="#${video.id}" class="video-link">
+                        <span class="video-icon">▶</span>
+                        <span class="video-number">Урок ${index + 1}</span>
+                        <span class="video-title">${video.title}</span>
+                        <div class="quiz-controls">
+                            <button class="video-control-btn edit-btn" onclick="showEditForm('${video.id}')">✎</button>
+                            <button class="video-control-btn delete-btn" onclick="deleteQuiz('${video.id}')">✕</button>
+                        </div>
+                    </a>
+                `;
+                sidebarMenu.appendChild(videoElement);
+            });
+        }
+
+        function deleteQuiz(quizId) {
+            if (!confirm('Вы уверены, что хотите удалить этот тест?')) return;
+
+            const quizIndex = quizLessons.findIndex(q => q.id === quizId);
+            if (quizIndex === -1) return;
+
+            // Удаляем тест из массива тестов
+            quizLessons.splice(quizIndex, 1);
+            // Удаляем вопросы теста
+            delete quizQuestions[quizId];
+
+            // Обновляем нумерацию оставшихся тестов
+            quizLessons.forEach((quiz, index) => {
+                const newId = `quiz${index + 1}`;
+                if (quiz.id !== newId) {
+                    quizQuestions[newId] = quizQuestions[quiz.id];
+                    delete quizQuestions[quiz.id];
+                    quiz.id = newId;
+                }
+            });
+
+            // Сохраняем обновленные данные
+            localStorage.setItem('quizLessons', JSON.stringify(quizLessons));
+            localStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
+
+            // Обновляем интерфейс
+            initializeSidebar();
+            if (quizLessons.length > 0) {
+                loadQuiz(quizLessons[0].id);
+            }
         }
     </script>
 </body>
