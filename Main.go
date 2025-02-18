@@ -440,7 +440,6 @@ func submitQuizResult(c *gin.Context) {
 
 	quizCollection := client.Database("learning").Collection("quiz_progress")
 
-	// Проверяем, существует ли уже результат для этого теста
 	var existingProgress QuizProgress
 	err := quizCollection.FindOne(context.TODO(), bson.M{
 		"user_id": submission.UserID,
@@ -466,11 +465,9 @@ func submitQuizResult(c *gin.Context) {
 	}
 
 	if err == mongo.ErrNoDocuments {
-		// Если результата нет, создаем новый документ
 		quizProgress.ID = nextID("quiz_progress")
 		_, err = quizCollection.InsertOne(context.TODO(), quizProgress)
 	} else {
-		// Если результат существует, обновляем его
 		_, err = quizCollection.UpdateOne(
 			context.TODO(),
 			bson.M{
@@ -514,12 +511,10 @@ func getUserProgress(c *gin.Context) {
 	c.JSON(http.StatusOK, progress)
 }
 
-// Add new function to delete quiz results
 func deleteQuizResults(c *gin.Context) {
 	userID := c.Param("userId")
 	course := c.Param("course")
 
-	// Delete from quiz_progress collection
 	quizCollection := client.Database("learning").Collection("quiz_progress")
 	_, err := quizCollection.DeleteMany(
 		context.TODO(),
@@ -533,7 +528,6 @@ func deleteQuizResults(c *gin.Context) {
 		return
 	}
 
-	// Update user's progress array
 	collection := client.Database("learning").Collection("users")
 	_, err = collection.UpdateOne(
 		context.TODO(),
@@ -554,7 +548,6 @@ func deleteQuizResults(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Quiz results deleted successfully"})
 }
 
-// Add new function to update video progress
 func updateVideoProgress(c *gin.Context) {
 	var submission struct {
 		UserID    string `json:"user_id"`
@@ -570,7 +563,6 @@ func updateVideoProgress(c *gin.Context) {
 
 	collection := client.Database("learning").Collection("video_progress")
 
-	// Проверяем, существует ли уже прогресс для этого видео
 	var existingProgress VideoProgress
 	err := collection.FindOne(context.TODO(), bson.M{
 		"user_id":  submission.UserID,
@@ -587,11 +579,9 @@ func updateVideoProgress(c *gin.Context) {
 	}
 
 	if err == mongo.ErrNoDocuments {
-		// Если записи нет, создаем новую
 		videoProgress.ID = nextID("video_progress")
 		_, err = collection.InsertOne(context.TODO(), videoProgress)
 	} else {
-		// Если запись существует, обновляем её
 		_, err = collection.UpdateOne(
 			context.TODO(),
 			bson.M{
@@ -613,7 +603,6 @@ func updateVideoProgress(c *gin.Context) {
 		return
 	}
 
-	// Получаем обновленный прогресс курса
 	progress, err := calculateProgress(submission.UserID, submission.Course)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate progress"})
@@ -631,7 +620,6 @@ func getCourseProgress(c *gin.Context) {
 	userID := c.Param("userId")
 	course := c.Param("course")
 
-	// Подсчитываем количество завершенных тестов
 	quizCollection := client.Database("learning").Collection("quiz_progress")
 	completedQuizzes, err := quizCollection.CountDocuments(context.TODO(), bson.M{
 		"user_id":   userID,
@@ -643,7 +631,6 @@ func getCourseProgress(c *gin.Context) {
 		return
 	}
 
-	// Подсчитываем количество завершенных видео
 	videoCollection := client.Database("learning").Collection("video_progress")
 	completedVideos, err := videoCollection.CountDocuments(context.TODO(), bson.M{
 		"user_id":   userID,
@@ -655,17 +642,15 @@ func getCourseProgress(c *gin.Context) {
 		return
 	}
 
-	// Создаем объект с прогрессом
 	progress := CourseProgress{
 		UserID:      userID,
 		Course:      course,
 		QuizDone:    int(completedQuizzes),
 		VideosDone:  int(completedVideos),
-		TotalQuiz:   5, // Это значение будет браться из фронтенда
+		TotalQuiz:   5,
 		TotalVideos: 10,
 	}
 
-	// Вычисляем общий процент
 	totalItems := progress.TotalQuiz + progress.TotalVideos
 	completedItems := progress.QuizDone + progress.VideosDone
 	progress.Percentage = (float64(completedItems) / float64(totalItems)) * 100
@@ -729,7 +714,6 @@ func initDatabase() {
 func calculateProgress(userID, course string) (Progress, error) {
 	var progress Progress
 
-	// Сначала проверяем, существует ли уже запись прогресса
 	collection := client.Database("learning").Collection("progress")
 	err := collection.FindOne(context.TODO(), bson.M{
 		"user_id": userID,
@@ -737,7 +721,6 @@ func calculateProgress(userID, course string) (Progress, error) {
 	}).Decode(&progress)
 
 	if err == mongo.ErrNoDocuments {
-		// Если записи нет, создаем новую с nextID
 		progress.ID = nextID("progress")
 		progress.UserID = userID
 		progress.Course = course
@@ -745,7 +728,6 @@ func calculateProgress(userID, course string) (Progress, error) {
 		return progress, err
 	}
 
-	// Получаем количество завершенных видео
 	videoCollection := client.Database("learning").Collection("video_progress")
 	completedVideos, err := videoCollection.CountDocuments(context.TODO(), bson.M{
 		"user_id":   userID,
@@ -756,7 +738,6 @@ func calculateProgress(userID, course string) (Progress, error) {
 		return progress, err
 	}
 
-	// Получаем количество завершенных тестов
 	quizCollection := client.Database("learning").Collection("quiz_progress")
 	completedQuizzes, err := quizCollection.CountDocuments(context.TODO(), bson.M{
 		"user_id":   userID,
@@ -767,18 +748,15 @@ func calculateProgress(userID, course string) (Progress, error) {
 		return progress, err
 	}
 
-	// Заполняем поля
 	progress.VideosDone = int(completedVideos)
 	progress.QuizzesDone = int(completedQuizzes)
 
-	// Вычисляем процент
 	totalVideos := 10
 	totalTests := 5
 	totalItems := totalVideos + totalTests
 	completedItems := progress.VideosDone + progress.QuizzesDone
 	progress.Percentage = (float64(completedItems) / float64(totalItems)) * 100
 
-	// Обновляем запись в коллекции progress
 	filter := bson.M{
 		"user_id": userID,
 		"course":  course,
@@ -824,7 +802,6 @@ func getQuizProgress(c *gin.Context) {
 	c.JSON(http.StatusOK, progress)
 }
 
-// Добавим новую функцию для получения списка завершенных тестов
 func getCompletedQuizzes(c *gin.Context) {
 	userID := c.Param("userId")
 	course := c.Param("course")
@@ -848,7 +825,6 @@ func getCompletedQuizzes(c *gin.Context) {
 		return
 	}
 
-	// Извлекаем только ID тестов
 	quizIds := make([]string, 0)
 	for _, quiz := range completedQuizzes {
 		quizIds = append(quizIds, quiz.QuizID)
@@ -857,7 +833,6 @@ func getCompletedQuizzes(c *gin.Context) {
 	c.JSON(http.StatusOK, quizIds)
 }
 
-// Добавляем новый эндпоинт для проверки завершенности видео
 func getCompletedVideos(c *gin.Context) {
 	userID := c.Param("userId")
 	course := c.Param("course")
@@ -881,7 +856,6 @@ func getCompletedVideos(c *gin.Context) {
 		return
 	}
 
-	// Извлекаем только ID видео
 	videoIds := make([]string, 0)
 	for _, video := range completedVideos {
 		videoIds = append(videoIds, video.VideoID)
@@ -903,7 +877,6 @@ func updateUserProgress(c *gin.Context) {
 	c.JSON(http.StatusOK, progress)
 }
 
-// Новая функция для обработки результатов теста на уровень языка
 func submitLevelTest(c *gin.Context) {
 	var submission struct {
 		UserID string  `json:"user_id"`
@@ -917,7 +890,6 @@ func submitLevelTest(c *gin.Context) {
 		return
 	}
 
-	// Обновляем language_level в коллекции progress
 	collection := client.Database("learning").Collection("progress")
 	filter := bson.M{
 		"user_id": submission.UserID,

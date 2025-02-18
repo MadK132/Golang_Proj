@@ -626,7 +626,7 @@
         let answers = [];
 
         // Инициализация данных с проверкой localStorage
-        let quizLessons = JSON.parse(localStorage.getItem('quizLessons')) || [
+        let quizLessons = JSON.parse(localStorage.getItem('quizLessonskz')) || [
             {
                 id: 'quiz1',
                 title: 'Базовая грамматика',
@@ -949,8 +949,8 @@
         };
 
         // Если данные отсутствуют в localStorage, сохраняем начальные значения
-        if (!localStorage.getItem('quizLessons')) {
-            localStorage.setItem('quizLessons', JSON.stringify(quizLessons));
+        if (!localStorage.getItem('quizLessonskz')) {
+            localStorage.setItem('quizLessonskz', JSON.stringify(quizLessons));
         }
         if (!localStorage.getItem('quizQuestions')) {
             localStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
@@ -1494,7 +1494,7 @@
             quizQuestions[newId] = questions;
 
             // Сохраняем обновленные данные в localStorage
-            localStorage.setItem('quizLessons', JSON.stringify(quizLessons));
+            localStorage.setItem('quizLessonskz', JSON.stringify(quizLessons));
             localStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
 
             closeModal();
@@ -1576,7 +1576,7 @@
             });
 
             // Сохраняем обновленные данные
-            localStorage.setItem('quizLessons', JSON.stringify(quizLessons));
+            localStorage.setItem('quizLessonskz', JSON.stringify(quizLessons));
             localStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
 
             // Обновляем интерфейс
