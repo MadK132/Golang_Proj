@@ -378,7 +378,6 @@ body.dark-mode .card {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Стили для светлой темы */
 body.light-mode .sidebar {
     background-color: #f8f9fa;
     color: black;
@@ -393,7 +392,6 @@ body.light-mode .progress-section {
     color: black;
 }
 
-/* Стили для темной темы */
 body.dark-mode .sidebar {
     background-color: #1a1a1a;
     color: white;
@@ -408,7 +406,6 @@ body.dark-mode .progress-section {
     color: white;
 }
 
-/* Стили для progress-section */
 .progress-section {
     padding: 15px;
     border-radius: 8px;
@@ -416,7 +413,6 @@ body.dark-mode .progress-section {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Стили для сайдбара в светлой теме */
 .light-mode .sidebar {
     background-color: #f8f9fa !important;
     color: black !important;
@@ -431,7 +427,6 @@ body.dark-mode .progress-section {
     color: black !important;
 }
 
-/* Стили для сайдбара в темной теме */
 .dark-mode .sidebar {
     background-color: #1a1a1a !important;
     color: white !important;
@@ -446,7 +441,6 @@ body.dark-mode .progress-section {
     color: white !important;
 }
 
-/* Стили для прогресс-бара */
 .progress-bar {
     width: 100%;
     height: 20px;
@@ -462,7 +456,6 @@ body.dark-mode .progress-section {
     transition: width 0.3s ease;
 }
 
-/* Цвета для прогресс-бара в разных темах */
 .light-mode .progress-fill {
     background-color: #007bff !important;
 }

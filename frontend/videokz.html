@@ -455,7 +455,6 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.6);
         }
 
-        /* Стили для модального окна */
         .modal {
             display: none;
             position: fixed;
@@ -544,7 +543,6 @@
 
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
             <nav class="col-md-3 col-lg-2 d-md-block sidebar">
                 <div class="sidebar-sticky">
                     <button onclick="window.location.href='/test'" class="btn btn-secondary mb-3 w-100">
@@ -668,7 +666,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно для редактирования -->
     <div id="editVideoModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeEditModal()">&times;</span>
@@ -714,7 +711,6 @@
             }
         }
 
-        // Загрузка сохраненной темы
         window.addEventListener("load", function() {
             const savedTheme = localStorage.getItem("theme");
             const body = document.body;
@@ -735,7 +731,6 @@
             }
         });
 
-        // Проверка авторизации
         window.onload = function() {
             const currentUser = localStorage.getItem("currentUser");
             if (currentUser) {
@@ -755,7 +750,6 @@
             window.location.reload();
         }
 
-        // Функция для загрузки видео при клике на ссылку
         function loadVideo(videoId) {
             const video = videoLessons[videoId];
             if (video) {
@@ -765,7 +759,6 @@
             }
         }
 
-        // Добавляем обработчики для всех ссылок на видео
         document.querySelectorAll('.video-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -774,7 +767,6 @@
             });
         });
 
-        // Загружаем первое видео при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             loadVideo('video1');
         });
@@ -782,7 +774,6 @@
         let progress = 0;
         const currentUser = localStorage.getItem('currentUser');
         
-        // Добавим массив с данными всех видеоуроков
         let videoLessons = JSON.parse(localStorage.getItem('videoLessons')) || [
             {
                 id: 'video1',
@@ -846,12 +837,10 @@
             }
         ];
 
-        // Если videoLessons пустой (первая загрузка), сохраняем начальные данные
         if (!localStorage.getItem('videoLessons')) {
             localStorage.setItem('videoLessons', JSON.stringify(videoLessons));
         }
 
-        // Обновим функцию initializeSidebar и добавим проверку
         function initializeSidebar() {
             const sidebarList = document.querySelector('.nav.flex-column');
             if (!sidebarList) {
@@ -871,12 +860,10 @@
             sidebarList.innerHTML = sidebarContent;
             console.log('Sidebar initialized with', videoLessons.length, 'videos');
 
-            // Загружаем первое видео при инициализации
             const currentVideoId = getCurrentVideoId();
             loadVideo(currentVideoId);
         }
 
-        // Обновляем функцию checkVideoCompletion
         async function checkVideoCompletion(videoId) {
             if (!currentUser) return;
 
@@ -893,7 +880,6 @@
 
                 const button = document.getElementById('markComplete');
                 if (completedVideos.includes(videoId)) {
-                    // Видео завершено
                     if (button) {
                         button.disabled = true;
                         button.textContent = 'Завершено!';
@@ -901,13 +887,11 @@
                         button.classList.add('btn-success');
                     }
 
-                    // Обновляем чекмарк в сайдбаре
                     const checkmark = document.querySelector(`[data-video-id="${videoId}"] .completion-check`);
                     if (checkmark) {
                         checkmark.style.display = 'inline';
                     }
                 } else {
-                    // Видео не завершено
                     if (button) {
                         button.disabled = false;
                         button.textContent = 'Отметить как просмотренное';
@@ -935,14 +919,11 @@
                 return;
             }
 
-            // Обновляем заголовок и описание
             document.querySelector('.video-container h2').textContent = video.title;
             document.querySelector('.lesson-content p').textContent = video.description;
             
-            // Обновляем iframe с видео
             document.querySelector('.video-wrapper iframe').src = video.videoUrl;
             
-            // Подсвечиваем текущее видео в сайдбаре
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
@@ -951,18 +932,14 @@
                 activeLink.classList.add('active');
             }
 
-            // Проверяем завершенность видео
             checkVideoCompletion(videoId);
             
-            // Обновляем URL без перезагрузки страницы
             history.pushState({videoId}, '', `/videokz?id=${videoId}`);
         }
 
-        // Обновляем обработчик загрузки страницы
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('DOM loaded');
             await initializeSidebar();
-            // Всегда загружаем первое видео при прямом переходе на страницу
             const urlParams = new URLSearchParams(window.location.search);
             const videoId = urlParams.get('id') || 'video1';
             if (!urlParams.get('id')) {
@@ -972,7 +949,6 @@
             fetchVideoProgress();
         });
 
-        // Обработка навигации браузера (кнопки вперед/назад)
         window.addEventListener('popstate', (event) => {
             if (event.state && event.state.videoId) {
                 loadVideo(event.state.videoId);
@@ -985,7 +961,6 @@
             try {
                 console.log('Fetching video progress...');
                 
-                // Получаем все завершенные видео
                 const completedVideosResponse = await fetch(`/videos/completed/${currentUser}/kazakh`);
                 if (!completedVideosResponse.ok) {
                     throw new Error('Failed to fetch completed videos');
@@ -994,28 +969,24 @@
                 const completedVideos = await completedVideosResponse.json();
                 console.log('Completed videos:', completedVideos);
 
-                // Вычисляем процент завершения
-                const totalVideos = videoLessons.length; // Общее количество видео из массива
-                const completedCount = completedVideos.length; // Количество завершенных видео
+                const totalVideos = videoLessons.length;
+                const completedCount = completedVideos.length;
                 const progressPercentage = (completedCount / totalVideos) * 100;
 
                 console.log(`Progress: ${completedCount}/${totalVideos} (${progressPercentage}%)`);
 
-                // Обновляем прогресс-бар
                 const progressBar = document.getElementById('lessonProgress');
                 if (progressBar) {
                     progressBar.style.width = `${progressPercentage}%`;
                     progressBar.setAttribute('aria-valuenow', progressPercentage);
                 }
 
-                // Обновляем текст прогресса
                 const progressText = document.getElementById('progressText');
                 if (progressText) {
                     progressText.textContent = 
                         `${completedCount}/${totalVideos} видео аяқталды (${Math.round(progressPercentage)}%)`;
                 }
 
-                // Обновляем UI для всех видео
                 document.querySelectorAll('.nav-item').forEach(item => {
                     const videoId = item.dataset.videoId;
                     const checkmark = item.querySelector('.completion-check');
@@ -1023,7 +994,6 @@
                     if (completedVideos.includes(videoId)) {
                         checkmark.style.display = 'inline';
                         
-                        // Если это текущее видео, обновляем кнопку
                         if (videoId === getCurrentVideoId()) {
                             const button = document.getElementById('markComplete');
                             if (button) {
@@ -1058,7 +1028,6 @@
             }
         }
 
-        // Обновляем обработчик кнопки
         document.getElementById('markComplete').addEventListener('click', async function() {
             if (!currentUser) {
                 alert('Пожалуйста, войдите в систему');
@@ -1069,13 +1038,11 @@
             const button = this;
 
             try {
-                // Мгновенно обновляем состояние кнопки
                 button.disabled = true;
-                button.textContent = 'Завершено!';  // Меняем на "Завершено!"
+                button.textContent = 'Завершено!';
                 button.classList.remove('btn-primary');
                 button.classList.add('btn-success');
 
-                // Мгновенно показываем чекмарк
                 const currentItem = document.querySelector(`[data-video-id="${videoId}"]`);
                 if (currentItem) {
                     const checkmark = currentItem.querySelector('.completion-check');
@@ -1101,7 +1068,6 @@
                 const result = await response.json();
 
                 if (response.ok && result.status === 'success') {
-                    // Обновляем прогресс бар сразу после успешного ответа
                     const progressBar = document.getElementById('lessonProgress');
                     const progressText = document.getElementById('progressText');
                     if (progressBar && progressText) {
@@ -1114,7 +1080,6 @@
                         
                     }
                 } else {
-                    // В случае ошибки возвращаем кнопку в исходное состояние
                     button.disabled = false;
                     button.textContent = 'Отметить как просмотренное';
                     button.classList.remove('btn-success');
@@ -1122,7 +1087,6 @@
                     console.error('Server error:', result.error);
                 }
             } catch (error) {
-                // В случае ошибки возвращаем кнопку в исходное состояние
                 button.disabled = false;
                 button.textContent = 'Отметить как просмотренное';
                 button.classList.remove('btn-success');
@@ -1131,13 +1095,11 @@
             }
         });
 
-        // Добавим функцию getCurrentVideoId в начало скрипта
         function getCurrentVideoId() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('id') || 'video1'; // Возвращаем video1 если нет параметра id
+            return urlParams.get('id') || 'video1';
         }
 
-        // Функция для проверки прав администратора
         async function checkAdminStatus() {
             const currentUser = localStorage.getItem('currentUser');
             if (!currentUser) return;
@@ -1163,13 +1125,10 @@
             }
         }
 
-        // Вызываем проверку при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             checkAdminStatus();
-            // ... остальной код загрузки ...
         });
 
-        // Функция для показа формы добавления видео (заглушка)
         function showAddVideoForm() {
             document.getElementById('addVideoModal').style.display = 'block';
         }
@@ -1178,7 +1137,6 @@
             document.getElementById('addVideoModal').style.display = 'none';
         }
 
-        // Закрытие модального окна при клике вне его
         window.onclick = function(event) {
             const modal = document.getElementById('addVideoModal');
             if (event.target === modal) {
@@ -1189,13 +1147,11 @@
         function addNewVideo(event) {
             event.preventDefault();
 
-            // Получаем значения из формы
             const title = document.getElementById('videoTitle').value;
             const description = document.getElementById('videoDescription').value;
             let videoId = document.getElementById('videoUrl').value;
             
-            // Форматируем URL для YouTube видео
-            // Если введен полный URL, извлекаем из него ID
+
             if (videoId.includes('youtube.com') || videoId.includes('youtu.be')) {
                 const url = new URL(videoId);
                 if (videoId.includes('youtube.com/watch')) {
@@ -1205,15 +1161,12 @@
                 }
             }
             
-            // Формируем полный URL для встраивания
             const videoUrl = `https://www.youtube.com/embed/${videoId}`;
 
-            // Создаем новый ID
             const lastVideo = videoLessons[videoLessons.length - 1];
             const lastId = parseInt(lastVideo.id.replace('video', ''));
             const newId = `video${lastId + 1}`;
 
-            // Создаем новый объект видео
             const newVideo = {
                 id: newId,
                 title: title,
@@ -1221,12 +1174,9 @@
                 videoUrl: videoUrl
             };
 
-            // Добавляем видео в массив
             videoLessons.push(newVideo);
-            // Сохраняем обновленный список в localStorage
             localStorage.setItem('videoLessons', JSON.stringify(videoLessons));
 
-            // Добавляем новое видео в сайдбар
             const sidebarMenu = document.querySelector('.sidebar-menu');
             const newVideoElement = document.createElement('li');
             newVideoElement.innerHTML = `
@@ -1239,7 +1189,6 @@
 
             sidebarMenu.appendChild(newVideoElement);
 
-            // Добавляем обработчик для нового видео
             const newLink = newVideoElement.querySelector('.video-link');
             newLink.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1247,18 +1196,15 @@
                 loadVideo(videoId);
             });
 
-            // Закрываем модальное окно и очищаем форму
             closeModal();
             document.getElementById('addVideoForm').reset();
             try{
-            // Перезагружаем страницу
             window.location.reload();
             } catch (error) {
                 console.error('Error reloading page:', error);
             }
         }
 
-        // Функция для обновления сайдбара при загрузке страницы
         function updateSidebar() {
             const sidebarMenu = document.querySelector('.sidebar-menu');
             sidebarMenu.innerHTML = '';
@@ -1278,7 +1224,6 @@
                 `;
                 sidebarMenu.appendChild(videoElement);
 
-                // Добавляем обработчик для видео
                 const videoLink = videoElement.querySelector('.video-link');
                 videoLink.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1288,19 +1233,16 @@
             });
         }
 
-        // Вызываем обновление сайдбара при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             updateSidebar();
             loadVideo('video1');
             checkAdminStatus();
         });
 
-        // Функция для закрытия модального окна редактирования
         function closeEditModal() {
             document.getElementById('editVideoModal').style.display = 'none';
         }
 
-        // Функция для обновления видео
         function updateVideo(event) {
             event.preventDefault();
 
@@ -1309,7 +1251,6 @@
             const description = document.getElementById('editVideoDescription').value;
             let youtubeId = document.getElementById('editVideoUrl').value;
             
-            // Форматируем URL для YouTube видео
             if (youtubeId.includes('youtube.com') || youtubeId.includes('youtu.be')) {
                 const url = new URL(youtubeId);
                 if (youtubeId.includes('youtube.com/watch')) {
@@ -1358,7 +1299,6 @@
             videoLessons.splice(videoIndex, 1);
             localStorage.setItem('videoLessons', JSON.stringify(videoLessons));
             
-            // Обновляем нумерацию оставшихся видео
             videoLessons.forEach((video, index) => {
                 video.id = `video${index + 1}`;
             });

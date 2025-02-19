@@ -22,7 +22,7 @@
       width: 250px;
       background: #000000;
       color: white;
-      padding-top: 80px; /* Space for header */
+      padding-top: 80px;
       position: fixed;
       left: 0;
       height: 100%;
@@ -33,7 +33,7 @@
       margin-left: 250px;
       width: calc(100% - 250px);
       padding: 20px;
-      padding-top: 80px; /* Space for header */
+      padding-top: 80px;
       flex: 1;
     }
 
@@ -106,13 +106,12 @@
     }
 
     .card-title {
-      color: #007bff; /* синий для светлой темы */
+      color: #007bff;
       margin-bottom: 1rem;
     }
 
-    /* Цвет заголовков карточек в темной теме */
     .dark-mode .card-title {
-      color: #00d084; /* мятно-зеленый для темной темы */
+      color: #00d084;
     }
 
     .list-unstyled li {
@@ -120,7 +119,6 @@
       color: #666;
     }
 
-    /* Цвет текста списков в темной теме */
     .dark-mode .list-unstyled li {
       color: #b0b0b0;
     }
@@ -219,13 +217,11 @@
     </ul>
   </nav>
 
-  <!-- Main Content -->
   <div class="main-content">
     <div class="container">
       <h1 style="text-align: center">Курс русского языка</h1>
 
       <div class="row mt-4">
-        <!-- Карточка о грамматике -->
         <div class="col-md-4 mb-4">
           <div class="card h-100">
             <img src="/static/Грамматика .jpg" class="card-img-top" alt="Грамматика">
@@ -241,7 +237,6 @@
           </div>
         </div>
 
-        <!-- Карточка о произношении -->
         <div class="col-md-4 mb-4">
           <div class="card h-100">
             <img src="/static/Произношение .jpg" class="card-img-top" alt="Произношение">
@@ -257,7 +252,6 @@
           </div>
         </div>
 
-        <!-- Карточка о словарном запасе -->
         <div class="col-md-4 mb-4">
           <div class="card h-100">
             <img src="/static/Словарный запас.jpg" class="card-img-top" alt="Словарный запас">
@@ -275,7 +269,6 @@
       </div>
 
       <div class="row mt-2">
-        <!-- Карточка о практике -->
         <div class="col-md-12 mb-4">
           <div class="card h-100">
             <div class="card-body d-flex">
@@ -317,7 +310,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-  // Инициализируем массивы с данными по умолчанию
   const defaultVideoLessons = [
       {
           id: 'video1',
@@ -367,7 +359,6 @@
       }
   ];
 
-  // Сохраняем начальные данные в localStorage при первой загрузке
   if (!localStorage.getItem('videoLessons')) {
       localStorage.setItem('videoLessons', JSON.stringify(defaultVideoLessons));
   }
@@ -375,7 +366,6 @@
       localStorage.setItem('quizLessons', JSON.stringify(defaultQuizLessons));
   }
 
-  // Объединим все обработчики в одну функцию DOMContentLoaded
   document.addEventListener('DOMContentLoaded', function() {
     const savedTheme = localStorage.getItem("theme");
     const body = document.body;
@@ -391,22 +381,20 @@
 
         if (savedTheme === "dark-mode") {
             modeToggleButton.textContent = "🌞";
-            progressFill.style.backgroundColor = "#4CAF50"; // зеленый для темной темы
+            progressFill.style.backgroundColor = "#4CAF50";
         } else {
             modeToggleButton.textContent = "🌙";
-            progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы
+            progressFill.style.backgroundColor = "#007bff";
         }
     } else {
         body.classList.add("light-mode");
         sidebar.classList.add("light-mode");
         modeToggleButton.textContent = "🌙";
-        progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы по умолчанию
+        progressFill.style.backgroundColor = "#007bff";
     }
 
-    // Добавляем обработчик для кнопки переключения темы
     modeToggleButton.addEventListener("click", toggleMode);
 
-    // Проверка авторизации
     const currentUser = localStorage.getItem("currentUser");
     if (currentUser) {
       document.getElementById("Login").style.display = "none";
@@ -419,11 +407,9 @@
       document.getElementById("logoutBtn").style.display = "none";
     }
 
-    // Обновляем прогресс
     updateProgress();
   });
 
-  // Функция toggleMode остается без изменений
   function toggleMode() {
     const body = document.body;
     const modeToggleButton = document.getElementById("modeToggle");
@@ -432,12 +418,11 @@
     const isLightMode = body.classList.contains("light-mode");
 
     if (isLightMode) {
-        // Переключаем на темную тему
         body.classList.remove("light-mode");
         body.classList.add("dark-mode");
         sidebar.classList.remove("light-mode");
         sidebar.classList.add("dark-mode");
-        progressFill.style.backgroundColor = "#4CAF50"; // зеленый для темной темы
+        progressFill.style.backgroundColor = "#4CAF50";
         modeToggleButton.textContent = "🌞";
         localStorage.setItem("theme", "dark-mode");
     } else {
@@ -446,7 +431,7 @@
         body.classList.add("light-mode");
         sidebar.classList.remove("dark-mode");
         sidebar.classList.add("light-mode");
-        progressFill.style.backgroundColor = "#007bff"; // синий для светлой темы
+        progressFill.style.backgroundColor = "#007bff";
         modeToggleButton.textContent = "🌙";
         localStorage.setItem("theme", "light-mode");
     }
@@ -457,18 +442,15 @@
     window.location.reload();
   }
 
-  // Функция для обновления прогресса
   async function updateProgress() {
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) return;
 
-    // Получаем актуальные данные из localStorage
     const videoLessons = JSON.parse(localStorage.getItem('videoLessons'));
     const quizLessons = JSON.parse(localStorage.getItem('quizLessons'));
     let videoProgress = 0;
 
     try {
-        // Получаем прогресс по видео из базы данных
         const videoResponse = await fetch(`videos/completed/${currentUser}/russian`);
         if (videoResponse.ok) {
             const videoData = await videoResponse.json();
@@ -478,7 +460,6 @@
             videoProgress = completedCount;
         }
 
-        // Получаем прогресс по тестам
         const quizResponse = await fetch(`/quizzes/completed/${currentUser}/russian`);
         if (quizResponse.ok) {
             const quizData = await quizResponse.json();
@@ -486,7 +467,6 @@
             document.getElementById('quizProgressText').textContent = 
                 `${completedQuizzes}/${quizLessons.length} тестов завершено`;
 
-            // Обновляем общий прогресс на основе завершенных тестов и видео
             const totalCompleted = videoProgress + completedQuizzes;
             const totalItems = videoLessons.length + quizLessons.length;
             const totalProgress = (totalCompleted / totalItems) * 100;
@@ -495,7 +475,6 @@
                 `${Math.round(totalProgress)}%`;
         }
 
-        // Получаем уровень языка
         const levelResponse = await fetch(`/update-progress/${currentUser}/russian`);
         if (levelResponse.ok) {
             const levelData = await levelResponse.json();

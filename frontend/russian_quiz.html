@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        /* Общие стили */
         .quiz-container {
             max-width: 800px;
             margin: 20px auto;
@@ -103,7 +102,6 @@
                 style="position: fixed; top: 80px; left: 20px; z-index: 1000;">
             <i class="fas fa-arrow-left"></i> Назад
         </button>
-        <!-- Include your sidebar here -->
 
         <div class="main-content">
             <div id="quiz-container" class="quiz-container">
@@ -402,7 +400,6 @@
         document.getElementById('submitQuiz').addEventListener('click', submitQuiz);
         displayQuiz();
 
-        // Функция для переключения темы
         function toggleMode() {
             const body = document.body;
             const modeToggleButton = document.getElementById("modeToggle");
@@ -421,7 +418,6 @@
             }
         }
 
-        // Инициализация темы при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem("theme");
             const body = document.body;
@@ -440,10 +436,8 @@
                 modeToggleButton.textContent = "🌙";
             }
 
-            // Добавляем обработчик для кнопки переключения темы
             modeToggleButton.addEventListener("click", toggleMode);
 
-            // Отображаем тест
             displayQuiz();
         });
     </script>

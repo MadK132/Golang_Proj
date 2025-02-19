@@ -444,7 +444,6 @@
             padding-right: 40px;
         }
 
-        /* Стили для кнопки добавления квиза */
         #addQuizBtn {
             position: fixed;
             bottom: 20px;
@@ -467,7 +466,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Стили для темной темы */
         .dark-mode #addQuizBtn {
             background-color: #4CAF50;
             box-shadow: 0 4px 8px rgba(0,0,0,0.5);
@@ -478,13 +476,11 @@
             transform: scale(1.1);
         }
 
-        /* Стили для светлой темы */
         .light-mode #addQuizBtn:hover {
             background-color: #0056b3;
             transform: scale(1.1);
         }
 
-        /* Стили для модального окна */
         .modal {
             display: none;
             position: fixed;
@@ -555,7 +551,6 @@
 
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
             <nav class="col-md-3 col-lg-2 d-md-block sidebar">
                 <div class="sidebar-sticky">
                     <button onclick="window.location.href='/test'" class="btn btn-secondary mb-3 w-100">
@@ -582,15 +577,12 @@
                 </div>
             </nav>
 
-            <!-- Main content -->
             <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <div class="quiz-container">
                     <h2>Quiz Title</h2>
                     <div id="quiz">
-                        <!-- Questions will be dynamically inserted here -->
                     </div>
                     <div class="result" id="quizResult">
-                        <!-- Results will be shown here -->
                     </div>
                 </div>
             </main>
@@ -599,7 +591,6 @@
 
     <button id="addQuizBtn" onclick="showAddQuizForm()">+</button>
 
-    <!-- Модальное окно для добавления квиза -->
     <div id="addQuizModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
@@ -610,7 +601,6 @@
                     <input type="text" id="quizTitle" class="form-control" required>
                 </div>
                 <div id="questionsContainer">
-                    <!-- Здесь будут добавляться вопросы -->
                 </div>
                 <button type="button" class="btn btn-secondary mt-3" onclick="addQuestionForm()">
                     Жаңа сұрақ қосу
@@ -625,7 +615,6 @@
         let currentQuestion = 0;
         let answers = [];
 
-        // Инициализация данных с проверкой localStorage
         let quizLessons = JSON.parse(localStorage.getItem('quizLessonskz')) || [
             {
                 id: 'quiz1',
@@ -654,7 +643,6 @@
             }
         ];
 
-        // Инициализация вопросов с проверкой localStorage
         let quizQuestions = JSON.parse(localStorage.getItem('quizQuestions')) || {
             quiz1: [
                 {
@@ -948,7 +936,6 @@
             ]
         };
 
-        // Если данные отсутствуют в localStorage, сохраняем начальные значения
         if (!localStorage.getItem('quizLessonskz')) {
             localStorage.setItem('quizLessonskz', JSON.stringify(quizLessons));
         }
@@ -1030,10 +1017,8 @@
                 return;
             }
 
-            // Обновляем заголовок
             document.querySelector('.quiz-container h2').textContent = quiz.title;
             
-            // Загружаем вопросы для текущего квиза
             questions = quizQuestions[quizId];
             if (!questions) {
                 console.error('No questions found for quiz:', quizId);
@@ -1043,29 +1028,24 @@
             currentQuestion = 0;
             answers = new Array(questions.length).fill(null);
             
-            // Подсвечиваем текущий тест в сайдбаре
             document.querySelectorAll('.quiz-list li').forEach(li => {
                 li.classList.remove('active');
             });
             document.querySelector(`[data-quiz-id="${quizId}"]`).classList.add('active');
 
-            // Обновляем URL без перезагрузки страницы
             history.pushState({quizId}, '', `/quizkz?id=${quizId}`);
             
-            // Сначала проверяем, есть ли сохраненные результаты
             checkQuizCompletion(quizId).then(wasCompleted => {
                 console.log('Quiz completion check result:', wasCompleted);
-                // Показываем первый вопрос только если нет сохраненных результатов
                 if (!wasCompleted) {
                     displayQuestion();
                 }
             });
         }
 
-        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('DOM loaded');
-            await initializeSidebar(); // Дожидаемся завершения инициализации сайдбара
+            await initializeSidebar();
             const currentQuizId = getCurrentQuizId();
             loadQuiz(currentQuizId);
             fetchQuizProgress();
@@ -1078,7 +1058,6 @@
             try {
                 console.log('Fetching progress for user:', currentUser);
                 
-                // Получаем завершенные тесты
                 const completedResponse = await fetch(`/quizzes/completed/${currentUser}/kazakh`);
                 if (!completedResponse.ok) {
                     throw new Error('Failed to fetch completed quizzes');
@@ -1087,26 +1066,22 @@
                 const completedQuizzes = await completedResponse.json();
                 console.log('Completed quizzes:', completedQuizzes);
 
-                // Вычисляем процент завершения
-                const totalQuizzes = quizLessons.length; // Общее количество тестов
-                const completedCount = completedQuizzes.length; // Количество завершенных тестов
+                const totalQuizzes = quizLessons.length;
+                const completedCount = completedQuizzes.length;
                 const progressPercentage = (completedCount / totalQuizzes) * 100;
 
-                // Обновляем прогресс-бар
                 const progressBar = document.getElementById('quizProgress');
                 if (progressBar) {
                     progressBar.style.width = `${progressPercentage}%`;
                     progressBar.setAttribute('aria-valuenow', progressPercentage);
                 }
 
-                // Обновляем текст прогресса
                 const progressText = document.getElementById('progressText');
                 if (progressText) {
                     progressText.textContent = 
                         `${completedCount}/${totalQuizzes} тестов завершено (${Math.round(progressPercentage)}%)`;
                 }
 
-                // Обновляем чекмарки для завершенных тестов
                 completedQuizzes.forEach(quizId => {
                     const checkmark = document.querySelector(`[data-quiz-id="${quizId}"] .completion-check`);
                     if (checkmark) {
@@ -1140,7 +1115,6 @@
         const data = await response.json();
         console.log('Received quiz data:', data);
 
-        // Фильтрация на клиенте (если API возвращает ненужные курсы)
         if (!data || data.course !== "kazakh") {
             console.log(`Quiz ${quizId} не относится к курсу kazakh, пропускаем.`);
             return false;
@@ -1228,7 +1202,6 @@
 
             const currentUser = localStorage.getItem('currentUser');
             
-            // Создаем HTML для сайдбара
             const sidebarContent = quizLessons.map((quiz, index) => `
                 <li data-quiz-id="${quiz.id}">
                     <a href="#" onclick="loadQuiz('${quiz.id}'); return false;">
@@ -1244,7 +1217,6 @@
 
             sidebarList.innerHTML = sidebarContent;
 
-            // Проверяем завершенные тесты и показываем галочки
             if (currentUser) {
                 for (const quiz of quizLessons) {
                     try {
@@ -1296,7 +1268,6 @@
                 acc + (answer === questions[index].correct ? 1 : 0), 0);
 
             try {
-                // Сначала удаляем предыдущие результаты
                 await fetch(`/quiz/delete/${localStorage.getItem('currentUser')}/${currentQuizId}`, {
                     method: 'DELETE'
                 });
@@ -1332,28 +1303,22 @@
         }
 
         function restartQuiz(quizId) {
-            // Загружаем тот же тест заново
             const quiz = quizLessons.find(q => q.id === quizId);
             if (!quiz) return;
 
-            // Обновляем заголовок
             document.querySelector('.quiz-container h2').textContent = quiz.title;
             
-            // Загружаем вопросы для текущего квиза
             questions = quizQuestions[quizId];
             currentQuestion = 0;
             answers = new Array(questions.length).fill(null);
             
-            // Подсвечиваем текущий тест в сайдбаре
             document.querySelectorAll('.quiz-list li').forEach(li => {
                 li.classList.remove('active');
             });
             document.querySelector(`[data-quiz-id="${quizId}"]`).classList.add('active');
 
-            // Обновляем URL без перезагрузки страницы
             history.pushState({quizId}, '', `/quiz?id=${quizId}`);
             
-            // Показываем первый вопрос
             displayQuestion();
         }
 
@@ -1366,21 +1331,20 @@
             if (isLightMode) {
                 body.classList.remove("light-mode");
                 body.classList.add("dark-mode");
-                progressBar.style.backgroundColor = "#4CAF50"; // зеленый для темной темы
+                progressBar.style.backgroundColor = "#4CAF50";
 
                 modeToggleButton.textContent = "🌞";
                 localStorage.setItem("theme", "dark-mode");
             } else {
                 body.classList.remove("dark-mode");
                 body.classList.add("light-mode");
-                progressBar.style.backgroundColor = "#007bff"; // синий для светлой темы
+                progressBar.style.backgroundColor = "#007bff";
 
                 modeToggleButton.textContent = "🌙";
                 localStorage.setItem("theme", "light-mode");
             }
         }
 
-        // Загрузка сохраненной темы
         window.addEventListener("load", function() {
             const savedTheme = localStorage.getItem("theme");
             const body = document.body;
@@ -1401,7 +1365,6 @@
             }
         });
 
-        // Функция для добавления формы вопроса
         function addQuestionForm() {
             const container = document.getElementById('questionsContainer');
             const questionNumber = container.children.length + 1;
@@ -1479,10 +1442,8 @@
                 });
             }
 
-            // Создаем новый ID на основе текущего количества тестов
             const newId = `quiz${quizLessons.length + 1}`;
 
-            // Добавляем новый тест в quizLessons
             const newQuizLesson = {
                 id: newId,
                 title: title,
@@ -1490,15 +1451,12 @@
             };
             quizLessons.push(newQuizLesson);
 
-            // Добавляем вопросы в quizQuestions
             quizQuestions[newId] = questions;
 
-            // Сохраняем обновленные данные в localStorage
             localStorage.setItem('quizLessonskz', JSON.stringify(quizLessons));
             localStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
 
             closeModal();
-            // Обновляем список тестов в сайдбаре
             const sidebarList = document.querySelector('.quiz-list');
             if (sidebarList) {
                 sidebarList.innerHTML = quizLessons.map((quiz, index) => `
@@ -1511,21 +1469,19 @@
                 `).join('');
             }
 
-            // Загружаем новый тест
             loadQuiz(newId);
         }
 
         function showAddQuizForm() {
             document.getElementById('addQuizModal').style.display = 'block';
             document.getElementById('questionsContainer').innerHTML = '';
-            addQuestionForm(); // Добавляем первый вопрос по умолчанию
+            addQuestionForm();
         }
 
         function closeModal() {
             document.getElementById('addQuizModal').style.display = 'none';
         }
 
-        // Закрытие модального окна при клике вне его
         window.onclick = function(event) {
             const modal = document.getElementById('addQuizModal');
             if (event.target === modal) {
@@ -1560,12 +1516,9 @@
             const quizIndex = quizLessons.findIndex(q => q.id === quizId);
             if (quizIndex === -1) return;
 
-            // Удаляем тест из массива тестов
             quizLessons.splice(quizIndex, 1);
-            // Удаляем вопросы теста
             delete quizQuestions[quizId];
 
-            // Обновляем нумерацию оставшихся тестов
             quizLessons.forEach((quiz, index) => {
                 const newId = `quiz${index + 1}`;
                 if (quiz.id !== newId) {
@@ -1575,11 +1528,9 @@
                 }
             });
 
-            // Сохраняем обновленные данные
             localStorage.setItem('quizLessonskz', JSON.stringify(quizLessons));
             localStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
 
-            // Обновляем интерфейс
             initializeSidebar();
             if (quizLessons.length > 0) {
                 loadQuiz(quizLessons[0].id);
